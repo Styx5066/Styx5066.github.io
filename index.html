@@ -1,1 +1,303 @@
-Hello
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Fate/Grand Wars</title>
+
+    <!-- Javascript -->
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.21.0/dist/phaser.js"></script>
+    <!-- <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script> -->
+
+    <script src="src/utils.js"></script>
+    <script src="src/data.js"></script>
+    <script src="src/preload.js"></script>
+
+    <!-- Scenes -->
+    <script src="src/main-menu.js"></script>
+    <script src="src/intro.js"></script>
+    <script src="src/game-menu.js"></script>
+    <script src="src/battle-sim.js"></script>
+    <script src="src/servant-list.js"></script>
+    <script src="src/summon.js"></script>
+    <script src="src/battle.js"></script>
+    <script src="src/map-editor.js"></script>
+
+    <!-- Classes -->
+    <script src="src/obj/Map.js"></script>
+    <script src="src/obj/Tile.js"></script>
+    <script src="src/obj/Unit.js"></script>
+    <script src="src/obj/Skill.js"></script>
+    <script src="src/obj/NoblePhantasm.js"></script>
+    <script src="src/obj/Status.js"></script>
+    <script src="src/obj/Faction.js"></script>
+
+    <script src="src/obj/MapAI.js"></script>
+    <script src="src/obj/InfoBox.js"></script>
+    <script src="src/obj/PopUpBox.js"></script>
+    <script src="src/obj/Dialogue.js"></script>
+    <script src="src/obj/UnitInfo.js"></script>
+    <script src="src/obj/HelpTips.js"></script>
+
+    <!-- Units -->
+    <script src="src/units/list.js"></script>
+    <script src="src/units/General.js"></script>
+    <script src="src/units/Enemies.js"></script>
+
+    <script src="src/units/Saber.js"></script>
+    <script src="src/units/Archer.js"></script>
+    <script src="src/units/Lancer.js"></script>
+
+    <script src="src/units/Rider.js"></script>
+    <script src="src/units/Caster.js"></script>
+    <script src="src/units/Assassin.js"></script>
+    <script src="src/units/Berserker.js"></script>
+
+    <!-- Maps -->
+    <script src="src/obj/TileTypes.js"></script>
+
+    <script src="src/maps/TestMaps.js"></script>
+    <script src="src/maps/BattleSim1.js"></script>
+
+
+    <!-- Styling -->
+    <style type="text/css">
+      /* Core */
+      html, body, canvas {
+          background-color: #232323;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+        }
+      body {
+          padding-top: 9px;
+          text-align: center;
+          background-image: url("assets/ui/frame.png");
+          background-repeat: no-repeat;
+          /* background-attachment: fixed; */
+          background-position: 50% 2px;
+      }
+
+      /* Fonts */
+      @font-face {
+        font-family: "FrizQuadrata";
+        src: url("assets/fonts/friz-quadrata.otf");
+      }
+      @font-face {
+        font-family: "Optima";
+        src: url("assets/fonts/optima.ttf");
+      }
+    </style>
+</head>
+<body>
+
+<!-- Force-load the fonts so they work on first load -->
+<div style="font-family:FrizQuadrata; position:absolute; left:-1000px; visibility:hidden;">.</div>
+<div style="font-family:Optima; position:absolute; left:-1000px; visibility:hidden;">.</div>
+
+<script type="text/javascript">
+    //---------------
+    // SCENE: Main Menu starting screen
+    //---------------
+    class MenuScene extends Phaser.Scene {
+        constructor() { super('MenuScene'); }
+
+        preload() {
+          this.input.mouse.disableContextMenu();
+          this.sound.pauseOnBlur = false;
+          preloadMainMenu(this);
+        }
+
+        create() {
+          loadCursor();
+          createMainMenu(this);
+        }
+    }
+
+    //---------------
+    // SCENE: Intro for new players
+    //---------------
+    class IntroScene extends Phaser.Scene {
+        constructor() { super('IntroScene'); }
+
+        preload() {
+          preloadIntro(this);
+        }
+
+        create() {
+          loadCursor();
+          createIntro(this);
+        }
+    }
+
+    //---------------
+    // SCENE: Main game menu
+    //---------------
+    class GameMenuScene extends Phaser.Scene {
+        constructor() {
+          super('GameMenuScene');
+          this._playerData;
+          this._music;
+        }
+
+        init(data) {
+          this._playerData = data.playerData;
+          this._music = data.music;
+        }
+
+        preload() {
+          preloadGameMenu(this);
+        }
+
+        create() {
+          loadCursor();
+          createGameMenu(this);
+        }
+    }
+
+    //---------------
+    // SCENE: Battle Simulation Menu
+    //---------------
+    class BattleSimScene extends Phaser.Scene {
+        constructor() {
+          super('BattleSimScene');
+          this._playerData;
+          this._music;
+        }
+
+        init(data) {
+          this._playerData = data.playerData;
+          this._music = data.music;
+        }
+
+        preload() {
+          preloadBattleSim(this);
+        }
+
+        create() {
+          loadCursor();
+          createBattleSim(this);
+        }
+    }
+
+    //---------------
+    // SCENE: Servant List Menu
+    //---------------
+    class ServantListScene extends Phaser.Scene {
+        constructor() {
+          super('ServantListScene');
+          this._playerData;
+          this._music;
+        }
+
+        init(data) {
+          this._playerData = data.playerData;
+          this._music = data.music;
+        }
+
+        preload() {
+          preloadServantList(this);
+        }
+
+        create() {
+          loadCursor();
+          createServantList(this);
+        }
+    }
+
+    //---------------
+    // SCENE: Summon Menu
+    //---------------
+    class SummonScene extends Phaser.Scene {
+        constructor() {
+          super('SummonScene');
+          this._playerData;
+          this._music;
+        }
+
+        init(data) {
+          this._playerData = data.playerData;
+          this._music = data.music;
+        }
+
+        preload() {
+          preloadSummon(this);
+        }
+
+        create() {
+          loadCursor();
+          createSummon(this);
+        }
+    }
+
+    //---------------
+    // SCENE: Battle Map
+    //---------------
+    class BattleScene extends Phaser.Scene {
+        constructor() {
+          super('BattleScene');
+          this._BattleMap;
+          this._playerData;
+        }
+
+        init(data) {
+          this._BattleMap = data.map;
+          this._playerData = data.playerData;
+        }
+
+        preload() {
+          preloadBattle(this);
+        }
+
+        create() {
+          loadCursor();
+          createBattle(this);
+        }
+
+        update(time, delta) {
+          controls.update(delta);
+          updateBattle(this);
+        }
+    }
+
+    //---------------
+    // SCENE: Map Editor
+    //---------------
+    class MapEditorScene extends Phaser.Scene {
+        constructor() {
+          super('MapEditorScene');
+          this._playerData;
+        }
+
+        init(data) {
+          this._playerData = data.playerData;
+        }
+
+        preload() {
+          preloadMapEditor(this);
+        }
+
+        create() {
+          loadCursor();
+          createMapEditor(this);
+        }
+
+        update(time, delta) {
+          controls.update(delta);
+        }
+    }
+
+    // Game config
+    var config = {
+        type: Phaser.AUTO,  // Using CANVAS causes issues with tint not working
+        width: 1024,
+        height: 626,
+        title: "Fate/Grand Wars",
+        scene: [ MenuScene, IntroScene, GameMenuScene, BattleSimScene, ServantListScene, SummonScene, BattleScene, MapEditorScene ]
+    };
+
+    var game = new Phaser.Game(config);
+    var controls;
+</script>
+
+</body>
+</html>

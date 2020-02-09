@@ -1,0 +1,45 @@
+
+-------------------------------------
+ Inspiration, characters, UI, music, sounds, and other assets 
+-------------------------------------
+ Fate/Grand Order 
+ https://www.fate-go.jp/
+ https://fate-go.us/
+
+
+-------------------------------------
+ Gameplay inspiration, tiles, sounds, and other assets
+-------------------------------------
+ Advance Wars series
+ 
+ Wargroove
+ https://wargroove.com/
+ 
+-------------------------------------
+ Servant Info, Servant Dialogue, and Status Effect icons
+-------------------------------------
+ Fate/Grand Order Wikia
+ https://fategrandorder.fandom.com/wiki/Fate/Grand_Order_Wikia
+
+-------------------------------------
+ Cursor
+-------------------------------------
+ By: Sirea (http://www.rw-designer.com/user/5920) m.smejkalova@gmail.com
+ http://www.rw-designer.com/cursor-set/mass-effect-3
+ 
+ 
+-------------------------------------
+ Movement Icons
+-------------------------------------
+ By: Emberheart Games (https://emberheartgames.itch.io/)
+ https://emberheartgames.itch.io/rpg-items-retro-pack
+
+ 
+-------------------------------------
+ Development
+-------------------------------------
+ Developed by Styx
+ https://github.com/Styx5066
+ 
+ Created with Phaser 3
+ https://phaser.io/phaser3
