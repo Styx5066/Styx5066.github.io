@@ -23,7 +23,7 @@ class MapAI {
 
     // ==============================
     //  Use to debug AI movements
-    this._debugAI = true;
+    this._debugAI = devMode();
     // ==============================
   }
 

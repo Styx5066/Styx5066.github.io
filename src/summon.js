@@ -393,9 +393,9 @@ function summonServant(game, playerData, faction) {
   // Target rank
   var rank;
   var rand = getRandomInt(0, 100);
-  if (rand >= 75) { rank = rankEnum.Gold; }         // Gold:   25%
-  else if (rand >= 35) { rank = rankEnum.Silver; }  // Silver: 40%
-  else { rank = rankEnum.Bronze; }                  // Bronze: 35%
+  if (rand >= 70) { rank = rankEnum.Gold; }         // Gold:   30%
+  else if (rand >= 30) { rank = rankEnum.Silver; }  // Silver: 40%
+  else { rank = rankEnum.Bronze; }                  // Bronze: 30%
 
   // Handle empty rank collections
   if ((rank == rankEnum.Bronze) && (bronze.length == 0)) {

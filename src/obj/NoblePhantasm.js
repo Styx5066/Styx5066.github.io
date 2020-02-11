@@ -204,6 +204,8 @@ function npStrengthAoE()    { return 2; }
 // Recovers HP of allies in range by 10 every turn for 3 turns.
 //---------------
 function npAndersen(map, user, target, strength, isFirst) {
+  var delay = 0;
+
   // Regen
   target.addStatus(new Status(
     "HP Regen", "status-HP Regen", statusTypeEnum.Regen, buffTypeEnum.Buff, 10, 100, 3,
