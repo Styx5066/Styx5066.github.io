@@ -28,6 +28,12 @@ function createMainMenu(game) {
   // Background
   game.add.image(0, 0, 'menu-bg').setOrigin(0, 0);
 
+  // Game version
+  var verStyle = { font: "14px Optima", fill: "#fff" };
+  var versionText = game.add.text(2, 626, "v" + version(), verStyle).setOrigin(0, 1);
+  versionText.setShadow(2, 2, "#000", 2);
+  versionText.alpha = 0.3;
+
   // Title Text
   var titleStyle = { font: "100px FrizQuadrata", fill: "#000", stroke: "#fff", strokeThickness: 7 };
   var titleText = game.add.text(512, 250, "Fate/Grand Wars", titleStyle).setOrigin(0.5, 0.5);

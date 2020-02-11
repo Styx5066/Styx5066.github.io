@@ -9,7 +9,14 @@ function devMode() {
   return false;
 }
 
+//---------------
+// DESCRIPTION: Determines whether dev options appear
+//---------------
+function version() {
+  return "0.1.1";
+}
 
+// ------------------------------------------------------
 
 //---------------
 // DESCRIPTION: Loads the custom cursor
