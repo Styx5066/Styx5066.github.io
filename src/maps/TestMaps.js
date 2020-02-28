@@ -16,25 +16,15 @@ function TestMap(game) {
     // Player
     { unit: ElizabethBathory(game, player), x: 2, y: 3 },
     //{ unit: NurseryRhyme(game, player),  x: 2, y:1 },
-    { unit: Artemis(game, player),  x: 2, y: 2 },
+    { unit: ChevalierdEon(game, player),  x: 2, y: 2 },
 
     // Enemy
     { unit: ArtoriaAlter(game, enemy),  x: 5, y: 2 },
-    { unit: Soldier(game, enemy), x: 5, y: 3 },
-    { unit: Skeleton(game, enemy), x: 6, y: 3 },
-  ];
-
-  var structures = [
-    { struct: Fortress(), x: 3, y: 4, faction: null  },
-    { struct: Workshop(), x: 7, y: 5, faction: enemy, units: [
-        { load: "Celtic", cost: 200, classes: ["Saber", "Archer", "Lancer", "Caster"] },
-      ], cooldown: 2 },
-    { struct: Workshop(), x: 5, y: 5, faction: enemy, units: [
-        { load: "Soldier", cost: 100, classes: ["Saber", "Archer", "Lancer"] },
-      ], cooldown: 2 },
+    { unit: MedeaLily(game, enemy), x: 5, y: 3 },
   ];
 
   units[1].unit._npChargeTime = 1;
+  units[2].unit.aiType = aiTypeEnum.Defensive;
 
 
   // var unitPlacement = [
@@ -75,7 +65,6 @@ function TestMap(game) {
   var map = new Map(game, title, bgm);
   map.tiles = tiles;
   map.startUnits = units;
-  map.startStructs = structures;
   map.addZones(zones, connections);
   map.addPlayerFaction(player);
   map.difficulty = difficulty;

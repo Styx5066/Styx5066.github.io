@@ -41,6 +41,7 @@ class MapAI {
   //---------------
   startUnitTurn(unit) {
     var aiType = unit.aiType || aiTypeEnum.Normal;
+    var tauntInRange = this.isTauntInRange(unit);
 
     // Bring to front while selected
     this._map.selectedOrigX = unit.xTile;
@@ -86,6 +87,7 @@ class MapAI {
       }
     }
 
+
     // ==============================
     //   Noble Phantasm
     // ==============================
@@ -95,7 +97,7 @@ class MapAI {
     // ==============================
     //   Defensive
     // ==============================
-    if (aiType == aiTypeEnum.Defensive) {
+    if ((aiType == aiTypeEnum.Defensive) && !tauntInRange) {
       // Prioritize enemies in attack range without moving
       var attackRange = [];
       this._map.enemyList.length = 0;
@@ -145,7 +147,7 @@ class MapAI {
     // ==============================
     // Check for Ally-targeting skills or NP
     var supportSkill = this.getSupportSkill(unit);
-    if (supportSkill) {
+    if (supportSkill && !tauntInRange) {
       // Single Target
       if (supportSkill.skillType == skillTypeEnum.Ally) {
         this.debugAI(unit, "Support skill " + supportSkill.name + " available.");
@@ -355,6 +357,27 @@ class MapAI {
     }
 
     return selectedTarget;
+  }
+
+  //---------------
+  // DESCRIPTION: Determines if a taunting enermy is in range
+  // PARAMS:
+  //  unit (I,REQ) - Unit that is acting
+  // RETURNS: True if a taunting enemy is in range; otherwise false
+  //---------------
+  isTauntInRange(unit) {
+    var enemyList = [];
+    var unitRange = this._map.getUnitRange(unit);
+    var moveAttackRange = this._map.getMovementAttackRange(unit, unitRange, null, enemyList);
+
+    // Look for Taunt status
+    for (const enemy of enemyList) {
+      // Always attack first target with taunt
+      if (enemy.hasStatus("Taunt")) { return true; }
+    }
+
+    // No Taunt status found
+    return false;
   }
 
   //---------------

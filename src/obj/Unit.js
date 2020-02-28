@@ -700,6 +700,7 @@ class Unit {
     for (const skill of this._passiveSkills) {
       skill.effect(map, this, [this]);
     }
+    this.updateStatusSprites();
   }
 
   //---------------

@@ -2540,6 +2540,11 @@ class Map {
       this._tempRange.length = 0;
     } });
     unit.normal();
+
+    // Passives if spawned after unit placement
+    if (this._factionIndex > -1) {
+      unit.applyPassiveSkills(this);
+    }
   }
 
   //---------------
