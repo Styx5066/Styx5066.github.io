@@ -4601,6 +4601,9 @@ class Map {
     if (!silent) {
       var gutsStatus = unit.getStatus("Guts");
       if (gutsStatus) {
+        // Skill sound
+        this._sounds.skillUse.play();
+
         // Restore to 1/4th HP
         unit.curHP = Math.floor(unit.maxHP / 4);
         unit.updateHP(unit.curHP);

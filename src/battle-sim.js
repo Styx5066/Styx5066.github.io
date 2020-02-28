@@ -279,13 +279,13 @@ function createMapButton(game, mapObj, x, y, action, sound, alpha, clearsLeft) {
 
   // Disabled
   if (clearsLeft > 0) {
-    button.tint = 0xbbbbbb;
-    if (image) { image.tint = 0xbbbbbb; }
-    if (completed) { completed.tint = 0xbbbbbb; }
-    if (message) { message.tint = 0xbbbbbb; }
+    button.tint = 0x999999;
+    if (image) { image.tint = 0x999999; }
+    if (completed) { completed.tint = 0x999999; }
+    if (message) { message.tint = 0x999999; }
     if (difficulty) {
-      difficulty.tint = 0xbbbbbb;
-      for (const star of diffStars) { star.tint = 0xbbbbbb; }
+      difficulty.tint = 0x999999;
+      for (const star of diffStars) { star.tint = 0x999999; }
     }
   }
 

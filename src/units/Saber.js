@@ -317,7 +317,7 @@ function Jason(game, faction) {
   // Active Skills
   var activeSkills = [
     new Skill("The Requested Golden Fleece", "skill-Heal",
-              skillTypeEnum.Ally, "skillHealFleece", servantCooldown(6), 0,
+              skillTypeEnum.Ally, "skillHealFleece", servantCooldown(6), 1,
               ["Recovers the HP of one ally by 15. Removes one of their debuffs."]),
     new Skill("Conquering the Distant Sea Routes", "skill-Attack Up",
               skillTypeEnum.AllyBurst, "skillArgo", servantCooldown(8), 1,
