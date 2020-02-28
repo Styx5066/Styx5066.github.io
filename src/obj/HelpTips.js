@@ -367,7 +367,7 @@ class HelpTips {
       { name: "Fortress", tileObj: Fortress(), info: ["Defensive structure that can be claimed by units when they end their turn on the Fortress.",
                "Once claimed, enemies cannot pass through the Fortress or claim it themselves.",
                "When destroyed, turns into Ruins that provide less defense and do not block enemies."] },
-      { name: "Workshop", tileObj: Workshop(), info: ["A magic workshop that is able to spawn non-Servant units by constructing them or summoning them to the battlefield.",
+      { name: "Workshop", tileObj: Workshop(), info: ["A magic workshop that is able to spawn non-Servant units by constructing or summoning them to the battlefield.",
               "Mana is needed to spawn units, and generates at a rate of 50 mana per workshop each turn.",
               "When destroyed, turns into Ruins that is unable to spawn units."] },
       { name: "Ruins",    tileObj: RuinsLeyLine(), info: ["Ruins of a structure that was destroyed.",

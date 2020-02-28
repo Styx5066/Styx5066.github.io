@@ -1221,7 +1221,7 @@ function skillRegenPassive(map, user, target) {
   target.addStatus(new Status(
     "HP Regen", "status-HP Regen", statusTypeEnum.Regen, buffTypeEnum.Buff, 5, 100, -1,
     "Recovers own HP by 5 every turn"
-  ), null, 1000, user);
+  ), null, 1500, user);
 }
 
 //---------------

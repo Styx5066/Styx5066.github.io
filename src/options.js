@@ -392,6 +392,7 @@ function optionsData(game, playerData, fadeUI, depth, xyCoord, selectSound, mapC
   // Load
   var disableLoad = false;
   if (playerData.lastLoad == curDateSlashes()) { disableLoad = true; }
+  if (devMode()) { disableLoad = false; }
 
   optionsAddButton(game, fadeUI, "Load Data", depth, (xPos + 400), (yPos + 26), selectSound, () => {
     loadFile("loadPlayerDataFile", game, music);
