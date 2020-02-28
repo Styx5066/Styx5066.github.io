@@ -13,7 +13,7 @@ function devMode() {
 // DESCRIPTION: Determines whether dev options appear
 //---------------
 function version() {
-  return "0.1.1";
+  return "0.1.11";
 }
 
 // ------------------------------------------------------
@@ -122,6 +122,32 @@ function floatHPchange(game, x, y, height, text, color, hold, delay) {
 }
 
 //---------------
+// DESCRIPTION: Displays a Back button
+// PARAMS:
+//  game   (I,REQ) - Game object
+//  sound  (I,OPT) - Sound to play when clicked
+//  action (I,REQ) - Action to perform when clicked
+// RETURNS: Array of UI elements created
+//---------------
+function backButton(game, sound, action) {
+  // Back button
+  var backButton = game.add.image(4, 622, "button-back").setOrigin(0, 1);
+
+  var backStyle = { font: "35px Optima", fill: "#2b346d", stroke: "#000", strokeThickness: 1 };
+  var backText = game.add.text(84, 591, "Back", backStyle).setOrigin(0.5, 0.5);
+
+  backButton.setInteractive( useHandCursor() );
+  backButton.on('pointerdown', (pointer) => { if (!pointer.rightButtonDown()) {
+    if (sound) { sound.play(); }
+    action();
+  } } );
+  backButton.on('pointerover', function (pointer) { backButton.tint = 0xaaaaaa; } );
+  backButton.on('pointerout',  function (pointer) { backButton.tint = 0xffffff; } );
+
+  return [backButton, backText];
+}
+
+//---------------
 // DESCRIPTION: Saves data to file
 // PARAMS:
 //  data     (I,REQ) - Data to save
@@ -149,6 +175,71 @@ function saveFile(data, filename, type) {
         window.URL.revokeObjectURL(url);
     }, 0);
   }
+}
+
+//---------------
+// DESCRIPTION: Loads data from a file
+// PARAMS:
+//  callback (I,REQ) - Callback that runs once the file is loaded.
+//                     Should contain "game", "text", and "music" parameters.
+//---------------
+function loadFile(callback, game, music) {
+  var input = document.getElementById("dataLoad");
+
+  if (!input) {
+    input = document.createElement("input");
+    input.setAttribute("type", "file");
+    input.setAttribute("id", "dataLoad");
+    input.setAttribute("name", "files[]");
+    input.setAttribute("accept", ".fgw");
+    input.style.opacity = 0;
+    input.style.position = "absolute";
+    input.style.top = "-50px";
+    input.style.left = "-50px";
+    document.body.appendChild(input);
+
+    input.addEventListener("change", (evt) => { handleFileSelect(evt, callback, game, music); }, false);
+  }
+
+  input.click();
+}
+function handleFileSelect(evt, callback, game, music) {
+  var file = evt.target.files;
+
+  var reader = new FileReader();
+  reader.onload = (e) => {
+    var text = e.target.result;
+    window[callback](game, text, music);
+  };
+  reader.readAsText(file[0]);
+}
+
+//---------------
+// DESCRIPTION: Returns the current date and time
+//---------------
+function curDateTime() {
+  var d = new Date(),
+    minutes = d.getMinutes().toString().length == 1 ? '0'+d.getMinutes() : d.getMinutes(),
+    hours = d.getHours().toString().length == 1 ? '0'+d.getHours() : d.getHours(),
+    ampm = d.getHours() >= 12 ? 'pm' : 'am',
+    months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+  hours = (hours % 12);
+  if (hours == 0) { hours = 12; }
+  return days[d.getDay()]+' '+months[d.getMonth()]+' '+d.getDate()+' '+d.getFullYear()+' '+hours+':'+minutes+ampm;
+}
+
+//---------------
+// DESCRIPTION: Returns the current date
+//---------------
+function curDateSlashes() {
+  var today = new Date();
+  var dd = String(today.getDate()).padStart(2, '0');
+  var mm = String(today.getMonth() + 1).padStart(2, '0');
+  var yyyy = today.getFullYear();
+
+  return mm + '/' + dd + '/' + yyyy;
 }
 
 //---------------
@@ -233,4 +324,44 @@ function getRandomInt(min, max) {
 //---------------
 function getRandomArbitrary(min, max) {
   return Math.random() * (max - min) + min;
+}
+
+//---------------
+// (C) 2010 Andreas  Spindler. Permission to use, copy,  modify, and distribute
+// this software and  its documentation for any purpose with  or without fee is
+// hereby  granted.   Redistributions of  source  code  must  retain the  above
+// copyright notice and the following disclaimer.
+//
+// THE SOFTWARE  IS PROVIDED  "AS IS" AND  THE AUTHOR DISCLAIMS  ALL WARRANTIES
+// WITH  REGARD   TO  THIS  SOFTWARE   INCLUDING  ALL  IMPLIED   WARRANTIES  OF
+// MERCHANTABILITY AND FITNESS.  IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY
+// SPECIAL,  DIRECT,   INDIRECT,  OR  CONSEQUENTIAL  DAMAGES   OR  ANY  DAMAGES
+// WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
+// OF  CONTRACT, NEGLIGENCE  OR OTHER  TORTIOUS ACTION,  ARISING OUT  OF  OR IN
+// CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+//
+// $Writestamp: 2010-06-09 13:07:07$
+// $Maintained at: www.visualco.de$
+//---------------
+function ROT47(text) {
+  // Hides all ASCII-characters from 33 ("!") to 126 ("~").  Hence can be used
+  // to obfuscate virtually any text, including URLs and emails.
+  var R = new String()
+  R = ROTn(text,
+  "!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~")
+  return R;
+}
+function ROTn(text, map) {
+  // Generic ROT-n algorithm for keycodes in MAP.
+  var R = new String()
+  var i, j, c, len = map.length
+  for(i = 0; i < text.length; i++) {
+    c = text.charAt(i)
+    j = map.indexOf(c)
+    if (j >= 0) {
+      c = map.charAt((j + len / 2) % len)
+    }
+    R = R + c
+  }
+  return R;
 }

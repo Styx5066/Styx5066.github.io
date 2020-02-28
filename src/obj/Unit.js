@@ -43,8 +43,10 @@ class Unit {
     this._name = name;
     this._load = load + "";
     this._portrait = portrait;
+    this._origPortrait = portrait;
 
     this._unitClass = unitClass;
+    this._origClass = unitClass;
     this._rank = rank || rankEnum.Bronze;
     this._cost = rankPower(this._rank) * 100;
 
@@ -98,6 +100,7 @@ class Unit {
 
     // Map-related
     this._sprite;
+    this._classSprite;
     this._anim;
     this._spriteUI = [];
     this._spriteNoTint = [];
@@ -203,7 +206,7 @@ class Unit {
   //  color  (I,OPT) - Color of the damage text
   // RETURNS: true if the unit is now defeated; otherwise false
   //---------------
-  damage(amount, color) {
+  damage(amount, color, noFloat) {
     var curHP = this._curHP;
     curHP = curHP - amount;
 
@@ -216,7 +219,7 @@ class Unit {
 
     // Do damage
     this.updateHP(curHP)
-    this.floatUnitText(amount, color);
+    if (!noFloat) { this.floatUnitText(amount, color); }
 
     return (curHP == 0);
   }
@@ -226,7 +229,7 @@ class Unit {
   // PARAMS:
   //  amount (I,REQ) - Amount of HP to heal
   //---------------
-  heal(amount) {
+  heal(amount, noFloat) {
     var curHP = this._curHP;
     if (curHP == 0) { return; }
     curHP = curHP + amount;
@@ -237,7 +240,7 @@ class Unit {
 
     // Do healing
     this.updateHP(curHP)
-    this.floatUnitText(amount, "#b3e885", 500);
+    if (!noFloat) { this.floatUnitText(amount, "#b3e885", 500); }
   }
 
   //---------------
@@ -409,9 +412,12 @@ class Unit {
     // ==============================
     //   Failed
     // ==============================
-    // Apply debuff resistance to debuffs
+    // Debuffs
     var hitChance = status.hitChance;
     if (status.buffType == buffTypeEnum.Debuff) {
+      // Debuff Immunity
+      if (this.hasStatus("Debuff Immunity")) { hitChance -= 1000; }
+
       // Positive means it's harder to inflict debuffs, negative means it's easier
       hitChance = hitChance - this.debuffResistance(status.name) + attacker.debuffSuccess();
     }
@@ -469,12 +475,17 @@ class Unit {
     else if (status.statusType == statusTypeEnum.Regen) { this.addRegenStatus(status) }
     // Other
     else if (status.name == "Presence Concealment") { this.alphaFade(); }
+    else if (status.name == "Class Change") { this.changeClass(status.strength); }
 
     // Float skill text
     var text = status.name;
     var color = "#fff";
 
-    if (status.statusType == statusTypeEnum.Stun) { color = "#fbf134"; }
+    if (status.statusType == statusTypeEnum.Stun) {
+      if (status.name == "Charm") { color = "#ffd2f6"; }
+      else if (status.name == "Pig") { color = "#ffd2f6"; this.updateSprite("Pig"); }
+      else { color = "#fbf134"; }
+    }
     else if (status.statusType == statusTypeEnum.Block) { color = "#fff"; }
     else if (status.statusType == statusTypeEnum.DmgPT) {
       if (status.name == "Burn") { color = "#ff4136"; }
@@ -519,7 +530,10 @@ class Unit {
     // Defense
     else if (status.statusType == statusTypeEnum.Defense) { this.removeDefenseStatus(status); }
     // Stun
-    else if (status.statusType == statusTypeEnum.Stun) { this._stunStatus = null; }
+    else if (status.statusType == statusTypeEnum.Stun) {
+      this._stunStatus = null;
+      if (status.name == "Pig") {  }
+    }
     // Block
     else if (status.statusType == statusTypeEnum.Block) { this._blockStatus = null; }
     // DPT
@@ -528,6 +542,7 @@ class Unit {
     else if (status.statusType == statusTypeEnum.Regen) { this.removeRegenStatus(status) }
     // Other
     else if (status.name == "Presence Concealment") { this.alphaShow(); }
+    else if (status.name == "Class Change") { this.changeClass(this._origClass); }
 
     this.removeAllStatus(status);
     if (!skipSpriteUpdate) { this.updateStatusSprites(); }
@@ -756,7 +771,28 @@ class Unit {
 
       if (this._curCharge == this._npChargeTime) {
         this.floatUnitText("NP Ready", "#e9d100", 500, 3, 1500);
-        this.addStatus(new Status("NP Ready", "status-NP Ready", statusTypeEnum.NPready, null, 0, 100, -1, "Noble Phantasm is ready."), true);
+        this.addStatus(new Status("NP Ready", "status-NP Ready", statusTypeEnum.NPready, null, 0, 100, -1, "Noble Phantasm is ready to use"), true);
+      }
+    }
+  }
+
+  //---------------
+  // DESCRIPTION: Decreases unit's NP Charge
+  // PARAMS:
+  //  amount (I,OPT) - Amount of charge to decrease by (default: 1)
+  //---------------
+  decreaseNPCharge(amount) {
+    amount = amount || 1;
+
+    // Decrease Charge
+    if ((this._curCharge > 0) && (this._npChargeTime != -1)) {
+      this._curCharge -= amount;
+
+      if (this._curCharge < 0) { this._curCharge = 0; }
+
+      var npStatus = this.getStatus("NP Ready");
+      if (npStatus) {
+        this.removeStatus(npStatus);
       }
     }
   }
@@ -794,6 +830,11 @@ class Unit {
     var baseDepth = 5;
     factionIndex = factionIndex || 0;
 
+    // Clear everything just in case
+    this._spriteUI.length = 0;
+    this._spriteNoTint.length = 0;
+
+
     // ==============================
     //   Base Sprite
     // ==============================
@@ -824,6 +865,7 @@ class Unit {
     this.setSpriteDefaults(tokenClass, 24, (baseDepth + 3));
     tokenClass.setOrigin(0.3, 0.3);
     this._spriteUI.push(tokenClass);
+    this._classSprite = tokenClass;
 
     // ==============================
     //   HP
@@ -907,6 +949,29 @@ class Unit {
   }
 
   //---------------
+  // DESCRIPTION: Changes unit's sprite
+  // PARAMS:
+  //  newImage (I,REQ) - Sprite to change to
+  //---------------
+  updateSprite(newImage) {
+    if (!newImage) { return; }
+
+    this.portrait = newImage;
+    this._sprite.setTexture(newImage + "-Token");
+  }
+
+  //---------------
+  // DESCRIPTION: Changes unit's class
+  // PARAMS:
+  //  newClass (I,REQ) - Class to change to
+  //---------------
+  changeClass(newClass) {
+    this._unitClass = newClass;
+    this._attackRange = defaultAtkRange(newClass);
+    this._classSprite.setTexture(newClass + "-" + this._rank + "-Token");
+  }
+
+  //---------------
   // DESCRIPTION: Sets the position of unit's sprites and animations
   // PARAMS:
   //  xTile (I,REQ) - Xth tile
@@ -973,8 +1038,24 @@ class Unit {
 
   //---------------
   // DESCRIPTION: Kills the unit, fading its UI away then destroying it
+  // PARAMS:
+  //  silent (I,OPT) - If true, no animation
   //---------------
-  kill() {
+  kill(silent) {
+    // Silent
+    if (silent) {
+      this._sprite.destroy();
+      this._classSprite.destroy();
+      this._maskHP.destroy();
+      this._anim.stop();
+
+      for (const sprite of this._spriteUI) { sprite.destroy(); }
+      for (const sprite of this._spriteNoTint) { sprite.destroy(); }
+      for (const sprite of this._statusSprites) { sprite.destroy(); }
+      return;
+    }
+
+    // Normal
     var allSprites = [...this._spriteUI];
     allSprites.push(this._sprite);
 
@@ -994,6 +1075,8 @@ class Unit {
   // DESCRIPTION: Clears tint on the unit
   //---------------
   normal() {
+    this.updateSprite(this._origPortrait);
+
     this._sprite.tint = 0xffffff;
     for (const sprite of this._spriteUI) {
       if (!this._spriteNoTint.includes(sprite)) {

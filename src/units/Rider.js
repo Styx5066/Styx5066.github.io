@@ -29,7 +29,7 @@ function Astolfo(game, faction) {
               ["75% chance to Stun one enemy for 1 turn."]),
     new Skill("Evaporation of Sanity", "skill-NP Charge",
               skillTypeEnum.Self, "skillAstolfo", servantCooldown(8), 0,
-              ["Increases own attack by 10% for 1 turn and charges own NP gauge by 1 bar."])
+              ["Increases own attack by 20% for 1 turn and charges own NP gauge by 1 bar."])
   ];
 
   // Passive Skills
@@ -46,7 +46,7 @@ function Astolfo(game, faction) {
   var noblePhantasm = new NoblePhantasm(
     "Hippogriff", "Otherworldly Phantom Horse",
     npTypeEnum.AoEdir, "npAstolfo", npStrengthAoE(), 4,
-    ["Deals 200% damage that ignores defense buffs to enemies in range. Grants self Evasion for 3 attacks.",
+    ["Deals 200% damage that ignores defense buffs to enemies in range. Grants self Evasion for 2 attacks.",
      "Range: A line of 4 spaces in one direction."]);
   var npChargeTime;
 
@@ -223,6 +223,83 @@ function MaryRead(game, faction) {
 // ==========================================================
 
 // ==========================================================
+function Medb(game, faction) {
+  // Basic info
+  var name = "Medb";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Rider;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [ "Female", "Humanoid", "King", "Riding", "Servant", "Weak to Enuma Elish" ];
+  var aiType = aiTypeEnum;
+
+  var intro = ["I am Medb. Queen Medb! Are you a mighty warrior, one who will fight and die for me?"];
+
+  // Stats
+  var maxHP = servantHP(13968);
+  var attack = servantAtk(10296);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Golden Rule (Body)", "skill-Body",
+              skillTypeEnum.Self, "skillBody", servantCooldown(8), 0,
+              ["Grants self debuff immunity for 3 turns.",
+               "Recovers own HP by 7 every turn for 3 turns.",
+               "Increases own NP charge generation to 1 bar per turn for 3 turns."]),
+   new Skill("Discipline of the Queen", "skill-Attack Up",
+             skillTypeEnum.AllyBurst, "skillCharismaQueen", servantCooldown(7), 1,
+             ["Increases attack of allies in range including self by 10% for 3 turns.",
+              "Further increases attack of Male allies by 10% for 3 turns.",
+              "Recovers own HP by 15."])
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Magic Resistance", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResA", 0, 0,
+              "Increases own debuff resistance by 20%."),
+    new Skill("Riding", "skill-Riding",
+              skillTypeEnum.Passive, "skillRiding", 0, 0,
+              "Increases own movement range by 1."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Chariot My Love", "My Dear Iron Chariot",
+    npTypeEnum.Single, "npMedb", npStrengthSingle(), 1,
+    ["Deals 300% damage to one enemy. Deals 50% extra damage to Male enemies.",
+     "Charms Male enemies for 1 turn. Range: 1 adjacent enemy."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
 function Medusa(game, faction) {
   // Basic info
   var name = "Medusa";
@@ -268,6 +345,80 @@ function Medusa(game, faction) {
     npTypeEnum.AoEdir, "npDamage", npStrengthAoE(), 4,
     ["Deals 200% damage to enemies in range.",
      "Range: A line of 4 spaces in one direction."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
+function SaintMartha(game, faction) {
+  // Basic info
+  var name = "Saint Martha";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Rider;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [ "Divine", "Female", "Humanoid", "Riding", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = ["My name is Martha, just Martha. Let us save the world."];
+
+  // Stats
+  var maxHP = servantHP(13068);
+  var attack = servantAtk(8014);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Protection of Faith", "skill-Debuff Resistance Up",
+              skillTypeEnum.Self, "skillFaith", servantCooldown(7), 0,
+              ["Increases own debuff resistance by 70% for 3 turns.",
+               "Recovers own HP by 15."]),
+    new Skill("Miracle", "skill-Heal",
+              skillTypeEnum.AllyBurst, "skillMiracle", servantCooldown(8), 1,
+              ["Recovers HP of allies in range including self by 15. Removes their debuffs."])
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Magic Resistance", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResA", 0, 0,
+              "Increases own debuff resistance by 20%."),
+    new Skill("Divinity", "skill-Divinity",
+              skillTypeEnum.Passive, "skillDivinity", 0, 0,
+              "Increases own damage by 5."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Tarasque", "O' Tragic Drake Who Knew Naught of Love",
+    npTypeEnum.Space, "npTarasque", 0, 1,
+    ["Summons the Tarasque to an adjacent space.",
+     "Can only be used once per battle."]);
   var npChargeTime;
 
   // ---------------

@@ -48,6 +48,7 @@ class MapAI {
     unit.increaseDepth(10);
     this._map.selectedUnit = unit;
 
+    this.debugAI(null, "-------------- " + unit.name + " --------------");
     this.debugAI(unit, "AI Type is " + aiType);
 
     // ==============================
@@ -66,7 +67,7 @@ class MapAI {
       // - Ignore hidden units
       for (const bankUnit of this._map._unitBank) {
         if (!unit.isEnemy(bankUnit)) { continue; }
-        if (bankUnit.hasStatus("Presence Concealment")) { continue; }
+        if (bankUnit.hasStatus("Presence Concealment") || bankUnit.hasStatus("Disguise")) { continue; }
 
         var otherTile = this._map.getTile(bankUnit.xTile, bankUnit.yTile);
         if (tile.zone == otherTile.zone) {
@@ -88,8 +89,7 @@ class MapAI {
     // ==============================
     //   Noble Phantasm
     // ==============================
-    var npReturn = this.checkNPuse(unit);
-    if (npReturn) { return; }
+    if (this.checkNPuse(unit)) { return; }
 
 
     // ==============================
@@ -99,7 +99,7 @@ class MapAI {
       // Prioritize enemies in attack range without moving
       var attackRange = [];
       this._map.enemyList.length = 0;
-      this._map.checkEnemiesInRange(unit, this._map.enemyList, attackRange, unit.xTile, unit.yTile, unit.attackRange, 0, null, null, true);
+      this._map.checkEnemiesInRange(unit, this._map.enemyList, attackRange, unit.xTile, unit.yTile, unit.attackRange, 0, null, null);
 
       if (this._map.enemyList.length > 0) {
 
@@ -109,6 +109,9 @@ class MapAI {
           if (skillReturn.endedTurn) { return; }
           if (skillReturn.delay) {
             this._map._game.time.delayedCall(800, () => {
+
+              // Check NP use in case NP Charge skill was used
+              if (this.checkNPuse(unit)) { return; }
 
               // Attack
               this._map._attacker = unit;
@@ -174,7 +177,7 @@ class MapAI {
     this.debugAI(unit, "Searching for enemies in range...");
     this._map.enemyList.length = 0;
     var unitRange = this._map.getUnitRange(unit);
-    var moveAttackRange = this._map.getMovementAttackRange(unit, unitRange, true, this._map._enemyList);
+    var moveAttackRange = this._map.getMovementAttackRange(unit, unitRange, null, this._map._enemyList);
     this.debugAI(unit, [...this._map.enemyList]);
 
     if (this._map.enemyList.length > 0) {
@@ -185,6 +188,9 @@ class MapAI {
         if (skillReturn.endedTurn) { return; }
         if (skillReturn.delay) {
           this._map._game.time.delayedCall(800, () => {
+
+            // Check NP use in case NP Charge skill was used
+            if (this.checkNPuse(unit)) { return; }
 
             // Move to attack
             this._map._attacker = unit;
@@ -259,6 +265,7 @@ class MapAI {
   //---------------
   selectEnemyTarget(unit, enemyList) {
     var targetEnemy;
+    var targetIsStruct = false;
     var mostDamage = 0;
     var leastHP = 999999;
 
@@ -277,17 +284,33 @@ class MapAI {
         break;
       }
 
+      // Structures
+      var isStruct = false;
+      if (enemy.hasOwnProperty("_tileSprite")) { isStruct = true; }
+
+      // Prioritize units over structures
+      if (isStruct && targetEnemy && !targetIsStruct) { continue; }
+      if (!isStruct && targetIsStruct) {
+        mostDamage = damage;
+        leastHP = enemyHP;
+        targetEnemy = enemy;
+        targetIsStruct = isStruct;
+        continue;
+      }
+
       // Select the target that would take the most damage
       if (damage > mostDamage) {
         mostDamage = damage;
         leastHP = enemyHP;
         targetEnemy = enemy;
+        targetIsStruct = isStruct;
       }
 
       // If equal damage, select the target with the lowest current HP
       if ((damage == mostDamage) && (enemyHP < leastHP)) {
         leastHP = enemyHP;
         targetEnemy = enemy;
+        targetIsStruct = isStruct;
       }
     }
 
@@ -309,7 +332,7 @@ class MapAI {
     // Look at each enemy unit left
     for (const targetUnit of this._map.unitBank) {
       if (!unit.isEnemy(targetUnit)) { continue; }
-      if (targetUnit.hasStatus("Presence Concealment")) { continue; }
+      if (targetUnit.hasStatus("Presence Concealment") || targetUnit.hasStatus("Disguise")) { continue; }
 
       var targetX = targetUnit.xTile;
       var targetY = targetUnit.yTile;
@@ -367,7 +390,7 @@ class MapAI {
     // Set the unit's current distance as the first shortest distance
     var xDistance = targetX - unit.xTile;
     var yDistance = targetY - unit.yTile;
-    var shortestDistance = Math.abs(xDistance) + Math.abs(yDistance);
+    var shortestDistance = 9999;
 
 
     // Find which of the available spaces is closest to the target
@@ -452,6 +475,9 @@ class MapAI {
     var inRange = false;
     var rangeXY = [];
 
+    // Do nothing if already in same zone
+    if (this._map.unitZone(unit) == this._map.unitZone(targetUnit)) { return null; }
+
     // For each movement space, look for the connection tile
     for (var i = 0; i < unitRange.length; i++) {
       var x = unitRange[i][0];
@@ -473,8 +499,8 @@ class MapAI {
     var yDistance = xyConnect.y - unit.yTile;
 
     var direction;
-    if (yDistance > 0) { direction = "north"; }
-    else if (yDistance < 0) { direction = "south"; }
+    if (yDistance > 0) { direction = "south"; }
+    else if (yDistance < 0) { direction = "north"; }
     else if (xDistance > 0) { direction = "east"; }
     else { direction = "west"; }
 
@@ -489,10 +515,10 @@ class MapAI {
       var y = rangeCopy[i][1];
 
       // Remove inappropriate movement spaces
-      if ((direction == "north") && (y < xyConnect.y)) { continue; }
-      if ((direction == "south") && (y > xyConnect.y)) { continue; }
-      if ((direction == "east")  && (x > xyConnect.x)) { continue; }
-      if ((direction == "west")  && (x < xyConnect.x)) { continue; }
+      if ((direction == "north") && (y > xyConnect.y)) { continue; }
+      if ((direction == "south") && (y < xyConnect.y)) { continue; }
+      if ((direction == "east")  && (x < xyConnect.x)) { continue; }
+      if ((direction == "west")  && (x > xyConnect.x)) { continue; }
 
       // Add appropriate spaces back in
       unitRange.push([x, y]);
@@ -516,7 +542,8 @@ class MapAI {
     // Check for available skills
     var readySkills = [];
     for (const skill of unit.activeSkills) {
-      if (skill.name == "Presence Concealment") { continue; } // Don't use this skill normally
+      if ((skill.name == "Presence Concealment") || (skill.name == "Not For One's Own Glory")
+            || (skill.name == "Espionage")) { continue; } // Don't use this skill normally
       if (skill.curTurn == 0) { readySkills.push(skill); }
     }
     if (readySkills == 0) { return null; }
@@ -684,7 +711,7 @@ class MapAI {
   //---------------
   useMoveSkill(unit) {
     // Check for specific skills
-    var skill = unit.getActiveSkill("Presence Concealment");
+    var skill = unit.getActiveSkill("Presence Concealment") || unit.getActiveSkill("Not For One's Own Glory") || unit.getActiveSkill("Espionage");
 
     if (skill) {
       if (skill.curTurn == 0) {
@@ -917,6 +944,16 @@ class MapAI {
     var spaceDir;
     var mostEnemies = 0;
 
+    // Check for taunt
+    var tauntEnemy = null;
+    for (const enemy of this._map.enemyList) {
+      if (enemy.hasStatus("Taunt")) {
+        tauntEnemy = enemy;
+        break;
+      }
+    }
+
+
     // Add current space too
     unitRange.push([unit.xTile, unit.yTile]);
 
@@ -932,6 +969,17 @@ class MapAI {
         var dirEnemy = [];
         this._map.checkEnemiesInRange(unit, dirEnemy, dirRange, x, y, range, 0, null, null, true, [dir]);
 
+        // Make sure taunting enemey is in range
+        var tauntContinue = true;
+        if (tauntEnemy) {
+          tauntContinue = false;
+          for (const enemy of dirEnemy) {
+            if (enemy == tauntEnemy) { tauntContinue  = true; break; }
+          }
+        }
+        if (!tauntContinue) { continue; }
+
+        // Set the space/direction
         if (dirEnemy.length > mostEnemies) {
           mostEnemies = dirEnemy.length;
           spaceDir = { x: x, y: y, dir: dir };
@@ -950,14 +998,22 @@ class MapAI {
   // RETURNS: True if NP used; false otherwise
   //---------------
   useNPAoEburst(unit, noblePhantasm, targetAllies) {
+    // Check for Healing
+    var isHeal = false;
+    if ((noblePhantasm.description.length > 0) && (noblePhantasm.description[0].toLowerCase().includes("recovers hp"))) {
+      isHeal = true;
+    }
+
+
     // Search for enemies in range
     this._map.enemyList.length = 0;
     var unitRange = this._map.getUnitRange(unit);
     var moveAttackRange = this._map.getMovementAttackRange(unit, unitRange, true, this._map._enemyList, 1, targetAllies);
+    if (targetAllies) { this._map.enemyList.push(unit); }
 
     if (this._map.enemyList.length > 0) {
       // Move to use NP
-      var xySpace = this.aoeBurstSpace(unit, unitRange, noblePhantasm.range, targetAllies);
+      var xySpace = this.aoeBurstSpace(unit, unitRange, noblePhantasm.range, targetAllies, isHeal);
       if (!xySpace) { return false; }
 
       var enemies = [];
@@ -975,6 +1031,7 @@ class MapAI {
 
           var sound;
           if (targetAllies) { sound = this._map._sounds.npUse; }
+          if (isHeal) { sound = this._map._sounds.heal; }
 
           unit.curCharge = 0;
           unit.removeStatus(unit.allStatuses[0]);
@@ -994,11 +1051,24 @@ class MapAI {
   //  unitRange (I,REQ) - Unit movement range tiles
   //  range     (I,REQ) - Attack range
   //  targetAllies (I,OPT) - If true, target allies
+  //  isHeal       (I,OPT) - If true, heal
   // RETURNS: Object with "x" and "y" properties
   //---------------
-  aoeBurstSpace(unit, unitRange, range, targetAllies) {
+  aoeBurstSpace(unit, unitRange, range, targetAllies, isHeal) {
     var xySpace;
     var mostEnemies = 0;
+
+    // Check for taunt
+    var tauntEnemy = null;
+    if (!targetAllies) {
+      for (const enemy of this._map.enemyList) {
+        if (enemy.hasStatus("Taunt")) {
+          tauntEnemy = enemy;
+          break;
+        }
+      }
+    }
+
 
     // Add current space too
     unitRange.push([unit.xTile, unit.yTile]);
@@ -1016,7 +1086,32 @@ class MapAI {
 
       if (targetAllies) { atkEnemy.push(unit); }
 
-      if (atkEnemy.length > mostEnemies) {
+
+      // If healing, remove enemies at full HP from the count
+      if (isHeal) {
+        var temp = [...atkEnemy];
+        atkEnemy.length = 0;
+
+        for (const enemy of temp) {
+          if (enemy.curHP < enemy.maxHP) {
+            console.log("Cur HP: " + enemy.curHP + " / " + enemy.maxHP)
+             atkEnemy.push(enemy); }
+        }
+      }
+
+
+      // Make sure taunting enemy is in range
+      var tauntContinue = true;
+      if (tauntEnemy) {
+        tauntContinue = false;
+        for (const enemy of atkEnemy) {
+          if (enemy == tauntEnemy) { tauntContinue  = true; break; }
+        }
+      }
+      if (!tauntContinue) { continue; }
+
+
+      if ((atkEnemy.length > 0) && (atkEnemy.length > mostEnemies)) {
         mostEnemies = atkEnemy.length;
         xySpace = { x: x, y: y };
       }

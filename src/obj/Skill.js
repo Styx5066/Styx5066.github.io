@@ -85,7 +85,17 @@ class Skill {
     if (useSound) { useSound.play(); }
 
     for (const target of targetList) {
-      window[this._effectFun](map, user, target);
+      // Ignore errors so the game doesn't freeze up in the middle of battle
+      try {
+        window[this._effectFun](map, user, target);
+      }
+      catch (exception) {
+        var targetName;
+        if (target.hasOwnProperty("_tileSprite")) { targetName = target.image; }
+        else { targetName = target.name; }
+        console.log("[Error] Skill '" + this._name + "' encountered an issue attacking '" + targetName + "'.")
+        console.log(exception)
+      }
     }
   }
 
@@ -123,13 +133,13 @@ function skillArgo(map, user, target) {
 }
 
 //---------------
-// Increases own attack for 1 turn after this one and charges own NP gauge.
+// Increases own attack by 20% for 1 turn and charges own NP gauge.
 //---------------
 function skillAstolfo(map, user, target) {
   // Attack Up
   target.addStatus(new Status(
-    "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, 10, 100, 1,
-    "Increases Attack by 10%"
+    "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, 20, 100, 1,
+    "Increases Attack by 20%"
   ), null, null, user);
 
   // Charge NP
@@ -159,6 +169,70 @@ function skillAttackUp20(map, user, target) {
 }
 
 //---------------
+// Increases own attack by 40% for 1 turn.
+//---------------
+function skillAttackUp40(map, user, target) {
+  // Attack Up
+  target.addStatus(new Status(
+    "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, 40, 100, 1,
+    "Increases Attack by 40%"
+  ), null, null, user);
+}
+
+//---------------
+// Increases own attack by 50% for 1 turn.
+//---------------
+function skillAttackUp50(map, user, target) {
+  // Attack Up
+  target.addStatus(new Status(
+    "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, 50, 100, 1,
+    "Increases Attack by 50%"
+  ), null, null, user);
+}
+
+//---------------
+// Increases own NP charge generation to 1 bar per turn for 3 turns. Increases own Attack by 10% for 3 turns.
+//---------------
+function skillBabylon(map, user, target) {
+  // Increase NP Charge
+  target.addStatus(new Status(
+    "NP Charge Up", "status-NP Charge Up", statusTypeEnum.Check, buffTypeEnum.Buff, 1, 100, 3,
+    "NP charges at a rate of 1 bar per turn"
+  ), null, null, user);
+
+  // Attack Up
+  target.addStatus(new Status(
+    "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, 10, 100, 3,
+    "Increases Attack by 10%"
+  ), null, 1500, user);
+}
+
+//---------------
+// Grants self debuff immunity for 3 turns.
+// Recovers own HP by 7 every turn for 3 turns.
+// Increases own NP charge generation to 1 bar per turn for 3 turns.
+//---------------
+function skillBody(map, user, target) {
+  // Debuff Immunity
+  target.addStatus(new Status(
+    "Debuff Immunity", "status-Debuff Immunity", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, 3,
+    "Immune to debuff statuses"
+  ), null, null, user);
+
+  // HP Regen
+  target.addStatus(new Status(
+    "HP Regen", "status-HP Regen", statusTypeEnum.Regen, buffTypeEnum.Buff, 7, 100, 3,
+    "Recovers own HP by 7 every turn"
+  ), null, 1500, user);
+
+  // Increase NP Charge
+  target.addStatus(new Status(
+    "NP Charge Up", "status-NP Charge Up", statusTypeEnum.Check, buffTypeEnum.Buff, 1, 100, 3,
+    "NP charges at a rate of 1 bar per turn"
+  ), null, 3000, user);
+}
+
+//---------------
 // Increases own debuff resistance by 15% for 3 turns and charges own NP gauge by 1 bar
 //---------------
 function skillCalm(map, user, target) {
@@ -170,6 +244,29 @@ function skillCalm(map, user, target) {
 
   // Charge NP
   target.increaseNPCharge(2);
+}
+
+//---------------
+// Increases attack of allies in range including self by 10% for 3 turns.
+// Further increases attack of Male allies by 10% for 3 turns.
+// Recovers own HP by 15.
+//---------------
+function skillCharismaQueen(map, user, target) {
+  var attackUp = 10;
+  var delay = 0;
+
+  if (target.hasTrait("Male")) { attackUp += 10; }
+
+  if (user == target) {
+    target.heal(15);
+    delay = 1500;
+  }
+
+  // Attack Up
+  target.addStatus(new Status(
+    "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, attackUp, 100, 3,
+    "Increases Attack by " + attackUp + "%"
+  ), null, delay, user);
 }
 
 //---------------
@@ -185,6 +282,23 @@ function skillCharm(map, user, target) {
     "Charm", "status-Charm", statusTypeEnum.Stun, buffTypeEnum.Debuff, 0, chance, 1,
     "Unable to move or act"
   ), null, null, user);
+}
+
+//---------------
+// Inflicts Poison with 10 damage for 3 turns to enemies in range. Reduces defense of enemies in range by 10% for 3 turns.
+//---------------
+function skillCirce(map, user, target) {
+  // Poison
+  target.addStatus(new Status(
+    "Poison", "status-Poison", statusTypeEnum.DmgPT, buffTypeEnum.Debuff, 10, 100, 3,
+    "Takes 10 damage at the beginning of each turn"
+  ), null, null, user);
+
+  // Defense Down
+  target.addStatus(new Status(
+    "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -10, 100, 3,
+    "Decreases Attack by 10%"
+  ), null, 1500, user);
 }
 
 //---------------
@@ -208,10 +322,20 @@ function skillCreateLeyLine(map, user, target) {
 }
 
 //---------------
+// Creates a Workshop that can spawn non-Servant units.
+//---------------
+function skillCreateWorkshop(map, user, target) {
+  // In this case, target is the space to spawn at
+  var struct = Workshop();
+  map.createStructure(target.x, target.y, "workshop", struct.groundMoveCost, struct.flightMoveCost,
+    struct.groundDefense, struct.structureHP, user.faction);
+}
+
+//---------------
 // Increases own damage against Roman enemies by 50% for 3 turns.
 //---------------
 function skillDamageRoman(map, user, target) {
-  // Divine
+  // Roman Damage
   target.addStatus(new Status(
     "Damage Up (Roman)", "status-Damage Up", statusTypeEnum.Check, buffTypeEnum.Buff, 50, 100, 3,
     "Increases damage against Roman enemies by 50%"
@@ -248,6 +372,28 @@ function skillDefenseUp20(map, user, target) {
   target.addStatus(new Status(
     "Defense Up", "status-Defense Up", statusTypeEnum.Defense, buffTypeEnum.Buff, 20, 100, 3,
     "Increases Defense by 20%"
+  ), null, null, user);
+}
+
+//---------------
+// Increases own defense by 50% for 2 turns.
+//---------------
+function skillDefenseUp50(map, user, target) {
+  // Defense Up
+  target.addStatus(new Status(
+    "Defense Up", "status-Defense Up", statusTypeEnum.Defense, buffTypeEnum.Buff, 50, 100, 2,
+    "Increases Defense by 50%"
+  ), null, null, user);
+}
+
+//---------------
+// Disguises self from enemies for 3 turns or until you attack.
+//---------------
+function skillDisguise(map, user, target) {
+  // Presence Concealment
+  target.addStatus(new Status(
+    "Disguise", "status-Presence Concealment", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, 3,
+    "Disguises from enemies until the user attacks"
   ), null, null, user);
 }
 
@@ -294,6 +440,42 @@ function skillElegance(map, user, target) {
 }
 
 //---------------
+// Attacks ignore the Invincible status. Increases own attack by 10%.
+//---------------
+function skillEmpyreanEye(map, user, target) {
+  // Pierce Invincible
+  target.addAllStatus(new Status(
+    "Pierce Invincible", "status-Pierce Invincible", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, -1,
+    "Allows attacking those with the Invincible status"
+  ), null, null, user);
+
+  // Attack Up
+  target.addAttackStatus(new Status(
+    "Attack Up", "status-Attack Up", statusTypeEnum.Passive, buffTypeEnum.Buff, 10, 100, -1,
+    "Increases Attack by 10%"
+  ), null, null, user);
+}
+
+//---------------
+// Removes one enemy's buffs and reduces their attack by 15% for 3 turns.
+//---------------
+function skillErasure(map, user, target) {
+  // Remove target's buffs
+  var allStatuses = [...target.allStatuses];
+  for (const status of allStatuses) {
+    if (status.buffType == buffTypeEnum.Buff) {
+      target.removeStatus(status);
+    }
+  }
+
+  // Attack Down
+  target.addStatus(new Status(
+    "Attack Down", "status-Attack Down", statusTypeEnum.Attack, buffTypeEnum.Debuff, -15, 100, 3,
+    "Decreases Attack by 15%"
+  ), null, null, user);
+}
+
+//---------------
 // Grants self Evasion for 1 turn.
 //---------------
 function skillEvasion(map, user, target) {
@@ -322,12 +504,12 @@ function skillEvasionDef(map, user, target) {
 }
 
 //---------------
-// Grants self Evasion for 3 attacks. Increases own defense by 10% for 3 turns.
+// Grants self Evasion for 2 attacks. Increases own defense by 10% for 3 turns.
 //---------------
 function skillEvasionArrows(map, user, target) {
   // Evasion
   target.addStatus(new Status(
-    "Evasion", "status-Evade", statusTypeEnum.Block, buffTypeEnum.Buff, 3, 100, -1,
+    "Evasion", "status-Evade", statusTypeEnum.Block, buffTypeEnum.Buff, 2, 100, -1,
     "Evades attacks that are not Sure Hit"
   ), null, null, user);
 
@@ -339,13 +521,55 @@ function skillEvasionArrows(map, user, target) {
 }
 
 //---------------
-// Grants self Evasion for 3 attacks.
+// Grants self Evasion for 2 attacks.
 //---------------
 function skillEvasionAtk(map, user, target) {
   // Evasion
   target.addStatus(new Status(
-    "Evasion", "status-Evade", statusTypeEnum.Block, buffTypeEnum.Buff, 3, 100, -1,
+    "Evasion", "status-Evade", statusTypeEnum.Block, buffTypeEnum.Buff, 2, 100, -1,
     "Evades attacks that are not Sure Hit"
+  ), null, null, user);
+}
+
+//---------------
+// Grants self Evasion for 1 turn. Increases own NP charge generation to 1 bar per turn for 3 turns.
+//---------------
+function skillEvasionNP(map, user, target) {
+  // Evasion
+  target.addStatus(new Status(
+    "Evasion", "status-Evade", statusTypeEnum.Block, buffTypeEnum.Buff, 0, 100, 1,
+    "Evades attacks that are not Sure Hit"
+  ), null, null, user);
+
+  // Increase NP Charge
+  target.addStatus(new Status(
+    "NP Charge Up", "status-NP Charge Up", statusTypeEnum.Check, buffTypeEnum.Buff, 1, 100, 3,
+    "NP charges at a rate of 1 bar per turn"
+  ), null, 1500, user);
+}
+
+//---------------
+// Increases own debuff resistance by 70% for 3 turns. Recovers own HP by 15."
+//---------------
+function skillFaith(map, user, target) {
+  // Heal
+  target.heal(15);
+
+  // Debuff Resistance
+  target.addStatus(new Status(
+    "Debuff Resistance Up", "status-Debuff Resistance Up", statusTypeEnum.Debuff, buffTypeEnum.Buff, 70, 100, 3,
+    "Increases Debuff Resistance by 70%"
+  ), null, 1500, user);
+}
+
+//---------------
+// Next normal attack hits twice and charges NP Gauge by one bar.
+//---------------
+function skillFifthForm(map, user, target) {
+  // Fifth Form
+  target.addStatus(new Status(
+    "Fifth Form", "status-Fifth Form", statusTypeEnum.Check, buffTypeEnum.Buff, 1, 100, -1,
+    "Next normal attack hits twice and charges NP Gauge by one bar"
   ), null, null, user);
 }
 
@@ -387,6 +611,37 @@ function skillFox(map, user, target) {
     "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, 10, 100, 3,
     "Increases Attack by 10%"
   ), null, 1500, user);
+}
+
+//---------------
+// Increases own NP charge generation to 1 bar per turn.
+//---------------
+function skillGalvanism(map, user, target) {
+  // Increase NP Charge
+  target.addStatus(new Status(
+    "NP Charge Up", "status-NP Charge Up", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, -1,
+    "NP charges at a rate of 1 bar per turn"
+  ), null, null, user);
+}
+
+//---------------
+// Draws attention of enemies to self and increases own defense by 30% for 1 turn. Charges own NP gauge by half a bar.
+//---------------
+function skillGareth(map, user, target) {
+  // Taunt
+  target.addStatus(new Status(
+    "Taunt", "status-Taunt", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, 1,
+    "Draws attention of all enemies in range of attacking the user"
+  ), null, null, user);
+
+  // Defense Up
+  target.addStatus(new Status(
+    "Defense Up", "status-Defense Up", statusTypeEnum.Defense, buffTypeEnum.Buff, 30, 100, 1,
+    "Increases Defense by 30%"
+  ), null, 1500, user);
+
+  // Increase NP
+  target.increaseNPCharge(1);
 }
 
 //---------------
@@ -506,6 +761,34 @@ function skillHundredFaces(map, user, target) {
 }
 
 //---------------
+// Increases own attack by 10% for 3 turns. Increases own damage against enemies with the Beast trait by 50% for 1 turn.
+//---------------
+function skillHunt(map, user, target) {
+  // Attack Up
+  target.addStatus(new Status(
+    "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, 10, 100, 3,
+    "Increases Attack by 10%"
+  ), null, null, user);
+
+  // Beast damage
+  target.addStatus(new Status(
+    "Damage Up (Beast)", "status-Damage Up", statusTypeEnum.Check, buffTypeEnum.Buff, 50, 100, 1,
+    "Increases damage against Beast enemies by 50%"
+  ), null, 1500, user);
+}
+
+//---------------
+// Increases own debuff success rate by 15%.
+//---------------
+function skillItemConstr(map, user, target) {
+  // Debuff Rate
+  target.addDebuffSuccessStatus(new Status(
+    "Debuff Success Up", "status-Debuff Success Up", statusTypeEnum.DebuffRate, buffTypeEnum.Buff, 15, 100, -1,
+    "Increases Debuff success rate by 15%"
+  ), null, null, user);
+}
+
+//---------------
 // Draws attention of enemies to self for 3 turns. Recovers 20 HP.
 //---------------
 function skillLoveliness(map, user, target) {
@@ -520,6 +803,26 @@ function skillLoveliness(map, user, target) {
 }
 
 //---------------
+// 75% chance to charm female enemies in range for 1 turn.
+// Reduces defense of enemies in range by 20% for 3 turns.
+//---------------
+function skillLoveSpot(map, user, target) {
+  // Defense Down
+  target.addStatus(new Status(
+    "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -20, 100, 3,
+    "Decreases Defense by 20%"
+  ), null, null, user);
+
+  // Charm
+  var chance = 75;
+  if (!target.hasTrait("Female")) { chance = -100; }
+  target.addStatus(new Status(
+    "Charm", "status-Charm", statusTypeEnum.Stun, buffTypeEnum.Debuff, 0, chance, 1,
+    "Unable to move or act"
+  ), null, 1500, user);
+}
+
+//---------------
 // Increases own attack by 10%.
 //---------------
 function skillMadEnhancement(map, user, target) {
@@ -531,7 +834,7 @@ function skillMadEnhancement(map, user, target) {
 }
 
 //---------------
-// Increases own attack by 5%..
+// Increases own attack by 5%.
 //---------------
 function skillMadEnhancementLow(map, user, target) {
   // Attack Up
@@ -585,6 +888,71 @@ function skillMayKing(map, user, target) {
     "Evasion", "status-Evade", statusTypeEnum.Block, buffTypeEnum.Buff, 0, 100, 1,
     "Evades attacks that are not Sure Hit"
   ), null, 1500, user);
+}
+
+//---------------
+// Charges own NP gauge by 1 bar. Removes own debuffs. Recovers own HP by 15.
+//---------------
+function skillMeanwhile(map, user, target) {
+  // Remove debuffs
+  var allStatuses = [...target.allStatuses];
+  for (const status of allStatuses) {
+    if (status.buffType == buffTypeEnum.Debuff) {
+      target.removeStatus(status);
+    }
+  }
+
+  // Heal
+  target.heal(15);
+
+  // Increase NP
+  target.increaseNPCharge(2);
+}
+
+//---------------
+// Recovers the HP of one ally by 15. Removes their debuffs.
+//---------------
+function skillMiracle(map, user, target) {
+  // Heal
+  target.heal(15);
+
+  // Remove debuffs
+  var allStatuses = [...target.allStatuses];
+  for (const status of allStatuses) {
+    if (status.buffType == buffTypeEnum.Debuff) {
+      target.removeStatus(status);
+    }
+  }
+}
+
+//---------------
+// Hides self from enemies for 3 turns or until you attack. When attacking while hidden, attack increases by 40%.
+//---------------
+function skillMist(map, user, target) {
+  // Presence Concealment
+  target.addStatus(new Status(
+    "Presence Concealment", "status-Presence Concealment", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, 3,
+    "Hides from enemies until the user attacks - when attacking while hidden, attack increases by 40%"
+  ), null, null, user);
+}
+
+//---------------
+// Grants self Invincible for 1 turn. Removes own debuffs.
+//---------------
+function skillNothingness(map, user, target) {
+  // Remove debuffs
+  var allStatuses = [...target.allStatuses];
+  for (const status of allStatuses) {
+    if (status.buffType == buffTypeEnum.Debuff) {
+      target.removeStatus(status);
+    }
+  }
+
+  // Invincible
+  target.addStatus(new Status(
+    "Invincible", "status-Invincible", statusTypeEnum.Block, buffTypeEnum.Buff, 0, 100, 1,
+    "Blocks attacks that are not Pierce Invincible"
+  ), null, null, user);
 }
 
 //---------------
@@ -642,6 +1010,64 @@ function skillNPGain(map, user, target) {
 function skillNPFull(map, user, target) {
   // Increase NP
   target.increaseNPCharge(target.npChargeTime);
+}
+
+//---------------
+// Increases own NP damage by 25% for 1 turn.
+// Inflicts Burn with 5 damage for 5 turns to self. [Demerit]
+//---------------
+function skillOverload(map, user, target) {
+  // NP Damage Up
+  target.addStatus(new Status(
+    "NP Damage Up", "status-NP Damage Up", statusTypeEnum.Check, buffTypeEnum.Buff, 0.25, 100, 1,
+    "Increases NP damage by 25%"
+  ), null, null, user);
+
+  // Burn
+  target.addStatus(new Status(
+    "Burn", "status-Burn", statusTypeEnum.DmgPT, buffTypeEnum.Debuff, 5, 100, 5,
+    "Takes 5 damage at the beginning of each turn"
+  ), null, 1500, user);
+}
+
+//---------------
+// Changes class to Saber, Archer, or Lancer for 3 turns.
+//---------------
+function skillOwner(map, user, target) {
+  var classes = ["Saber", "Archer", "Lancer"];
+  var rand = getRandomInt(0, classes.length);
+
+  // Class Change
+  target.addStatus(new Status(
+    "Class Change", "status-Class Change", statusTypeEnum.Check, buffTypeEnum.Buff, classes[rand], 100, 3,
+    "Changes the unit's Class"
+  ), null, null, user);
+}
+
+//---------------
+// 60% chance to charm male enemies in range for 1 turn.
+// Reduces defense of enemies in range by 10% for 3 turns. Seals their skills for 1 turn.
+//---------------
+function skillPheromone(map, user, target) {
+  // Defense Down
+  target.addStatus(new Status(
+    "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -10, 100, 3,
+    "Decreases Defense by 10%"
+  ), null, null, user);
+
+  // Skill Seal
+  target.addStatus(new Status(
+    "Seal Skills", "status-Skill Seal", statusTypeEnum.Check, buffTypeEnum.Debuff, 0, 100, 1,
+    "Prevents use of Skills"
+  ), null, 1500, user);
+
+  // Charm
+  var chance = 60;
+  if (!target.hasTrait("Male")) { chance = -100; }
+  target.addStatus(new Status(
+    "Charm", "status-Charm", statusTypeEnum.Stun, buffTypeEnum.Debuff, 0, chance, 1,
+    "Unable to move or act"
+  ), null, 3000, user);
 }
 
 //---------------
@@ -749,6 +1175,20 @@ function skillRearguard(map, user, target) {
 }
 
 //---------------
+// Recovers HP of one ally by 15. Permanently Reduces own defense by 20%. [Demerit]
+//---------------
+function skillRebuild(map, user, target) {
+  // Heal
+  target.heal(40);
+
+  // Defense down (permanenet)
+  target.addStatus(new Status(
+    "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -20, 100, -1,
+    "Decreases Defense by 20%"
+  ), null, 1000, user);
+}
+
+//---------------
 // Recovers own HP by 10 every turn for 5 turns.
 //---------------
 function skillRegen(map, user, target) {
@@ -756,6 +1196,31 @@ function skillRegen(map, user, target) {
   target.addStatus(new Status(
     "HP Regen", "status-HP Regen", statusTypeEnum.Regen, buffTypeEnum.Buff, 10, 100, 5,
     "Recovers own HP by 10 every turn"
+  ), null, null, user);
+}
+
+//---------------
+// Recovers own HP by 15. Recovers own HP by 10 every turn for 5 turns.
+//---------------
+function skillRegenHeal(map, user, target) {
+  // Heal
+  target.heal(15);
+
+  // Regen
+  target.addStatus(new Status(
+    "HP Regen", "status-HP Regen", statusTypeEnum.Regen, buffTypeEnum.Buff, 10, 100, 5,
+    "Recovers own HP by 10 every turn"
+  ), null, 1000, user);
+}
+
+//---------------
+// Recovers own HP by 5 every turn.
+//---------------
+function skillRegenPassive(map, user, target) {
+  // Regen
+  target.addStatus(new Status(
+    "HP Regen", "status-HP Regen", statusTypeEnum.Regen, buffTypeEnum.Buff, 5, 100, -1,
+    "Recovers own HP by 5 every turn"
   ), null, null, user);
 }
 
@@ -813,6 +1278,17 @@ function skillShapeshift(map, user, target) {
 }
 
 //---------------
+// Increases own defense by 20%.
+//---------------
+function skillShapeshift20(map, user, target) {
+  // Attack Up
+  target.addDefenseStatus(new Status(
+    "Defense Up", "status-Defense Up", statusTypeEnum.Passive, buffTypeEnum.Buff, 20, 100, -1,
+    "Increases Defense by 20%"
+  ), null, null, user);
+}
+
+//---------------
 // Increases own attack range by 1.
 //---------------
 function skillSharpshooter(map, user, target) {
@@ -852,6 +1328,38 @@ function skillStun(map, user, target) {
 }
 
 //---------------
+// Chance to Stun one enemy for 1 turn. Reduces their defense by 20% for 1 turn.
+//---------------
+function skillStunDefense(map, user, target) {
+  // Defense Down
+  target.addStatus(new Status(
+    "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -20, 100, 1,
+    "Decreases Defense by 20%"
+  ), null, null, user);
+
+  // Stun
+  target.addStatus(new Status(
+    "Stun", "status-Stun", statusTypeEnum.Stun, buffTypeEnum.Debuff, 0, 60, 1,
+    "Unable to move or act"
+  ), null, 1500, user);
+}
+
+//---------------
+// Stuns one enemy for 1 turn. Stuns Divine enemies for 1 additional turn."
+//---------------
+function skillStunEnkidu(map, user, target) {
+  var turns = 1;
+
+  if (target.hasTrait("Divine")) { turns = 2; }
+
+  // Stun
+  target.addStatus(new Status(
+    "Stun", "status-Stun", statusTypeEnum.Stun, buffTypeEnum.Debuff, 0, 100, turns,
+    "Unable to move or act"
+  ), null, null, user);
+}
+
+//---------------
 // Increases HP of own summons by 10%.
 //---------------
 function skillSummonConstr(map, user, target) {
@@ -880,6 +1388,23 @@ function skillSummonDTW(map, user, target) {
 }
 
 //---------------
+// Summons a Fairy Tale spellbook to an adjacent space.
+//---------------
+function skillSummonFairyTale(map, user, target) {
+  // In this case, target is the space to spawn at
+  unit = FairyTale(map._game, user.faction);
+
+  // Item Construction
+  if (user.hasPassiveSkill("Item Construction (Summon)")) {
+    unit.maxHP = unit.maxHP + (unit.maxHP * .10);
+    unit.curHP = unit.maxHP;
+  }
+
+  map.spawnUnit(unit, target.x, target.y);
+  map.addActiveUnit(unit);
+}
+
+//---------------
 // Draws attention of enemies to self for 1 turn.
 //---------------
 function skillTaunt1(map, user, target) {
@@ -891,8 +1416,51 @@ function skillTaunt1(map, user, target) {
 }
 
 //---------------
+// Draws attention of enemies to self for 1 turn. Increases own defense by 20% for 3 turns.
+//---------------
+function skillTauntDef(map, user, target) {
+  // Taunt
+  target.addStatus(new Status(
+    "Taunt", "status-Taunt", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, 1,
+    "Draws attention of all enemies in range of attacking the user"
+  ), null, null, user);
+
+  // Defense Up
+  target.addStatus(new Status(
+    "Defense Up", "status-Defense Up", statusTypeEnum.Defense, buffTypeEnum.Buff, 20, 100, 3,
+    "Increases Defense by 20%"
+  ), null, 1500, user);
+}
+
+//---------------
 // Increases own healing from Ley Lines by 10%.
 //---------------
 function skillTerritory(map, user, target) {
   // Is manually checked for when Ley Lines heal HP
+}
+
+//---------------
+// Increases own defense for 3 turns and charges own NP gauge.
+//---------------
+function skillTwilight(map, user, target) {
+  // Defense Up
+  target.addStatus(new Status(
+    "Defense Up", "status-Defense Up", statusTypeEnum.Defense, buffTypeEnum.Buff, 10, 100, 3,
+    "Increases Defense by 10%"
+  ), null, null, user);
+
+  // Charge NP
+  target.increaseNPCharge(2);
+}
+
+//---------------
+// Deals 125& damage to one enemy. Recovers own HP by 2/3rd of the damage dealt.
+//---------------
+function skillVampire(map, user, target) {
+  // Damage
+  var damage = map.attack(target, 1.25, true, true);
+
+  // Heal
+  var heal = Math.round(damage * (2/3));
+  user.heal(heal);
 }

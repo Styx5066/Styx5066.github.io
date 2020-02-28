@@ -73,6 +73,80 @@ function Andersen(game, faction) {
 // ==========================================================
 
 // ==========================================================
+function Circe(game, faction) {
+  // Basic info
+  var name = "Circe";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Caster;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [ "Argo-Related", "Female", "Humanoid", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = ["Oh my, you are a rather cute Master!"];
+
+  // Stats
+  var maxHP = servantHP(8643);
+  var attack = servantAtk(7418);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("High-Speed Divine Words", "skill-NP Charge",
+              skillTypeEnum.Self, "skillNPFull", servantCooldown(9), 0,
+              ["Fully charges own NP gauge."]),
+    new Skill("Intoxicated Meal", "skill-Poison",
+              skillTypeEnum.AoEburst, "skillCirce", servantCooldown(7), 1,
+              ["Inflicts Poison with 10 damage for 3 turns to enemies in range.",
+               "Reduces defense of enemies in range by 10% for 3 turns."]),
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Territory Creation", "skill-Territory Creation",
+              skillTypeEnum.Passive, "skillTerritory", 0, 0,
+              "Increases own healing from Ley Lines by 10%."),
+    new Skill("Item Construction", "skill-Item Construction",
+              skillTypeEnum.Passive, "skillItemConstr", 0, 0,
+              "Increases own debuff success rate by 15%."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Metabo Piglets", "Forbidden Revelry",
+    npTypeEnum.Single, "npCirce", (npStrengthAoE() + 0.5), 1,
+    ["Deals 250% damage to one enemy and transforms them into a Pig for 1 turn.",
+     "Range: 1 adjacent enemy."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
 function Medea(game, faction) {
   // Basic info
   var name = "Medea";
@@ -115,7 +189,7 @@ function Medea(game, faction) {
   // Noble Phantasm
   var noblePhantasm = new NoblePhantasm(
     "Rule Breaker", "All Spells Must Be Broken",
-    npTypeEnum.Single, "npMedea", 2, 1,
+    npTypeEnum.Single, "npDamageBuffRemove", npStrengthAoE(), 1,
     ["Deals 200% damage to one enemy and removes their buffs.",
      "Range: 1 adjacent enemy."]);
   var npChargeTime;
@@ -191,6 +265,80 @@ function MedeaLily(game, faction) {
     npTypeEnum.AllyBurst, "npMedeaLily", 0, 1,
     ["Recovers HP of allies in range by 50. Removes their debuffs.",
      "Range: 4 spaces adjacent to and including the user."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
+function NurseryRhyme(game, faction) {
+  // Basic info
+  var name = "Nursery Rhyme";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Caster;
+  var image = name;
+  var rank = rankEnum.Silver;
+  var traits = [ "Female", "Humanoid", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = ["A good day to the wonderful you. Let us make this a wonderful dream."];
+
+  // Stats
+  var maxHP = servantHP(10882);
+  var attack = servantAtk(8629);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Fairy Tale", "skill-Summon",
+              skillTypeEnum.Space, "skillSummonFairyTale", servantCooldown(9), 1,
+              ["Summons a Fairy Tale spellbook to an adjacent space."]),
+    new Skill("Meanwhile...", "skill-NP Charge",
+              skillTypeEnum.Self, "skillMeanwhile", servantCooldown(8), 0,
+              ["Charges own NP gauge by 1 bar. Removes own debuffs.",
+               "Recovers own HP by 15."]),
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Item Construction (Summon)", "skill-Item Construction",
+              skillTypeEnum.Passive, "skillSummonConstr", 0, 0,
+              "Increases HP of own summons by 10%."),
+    new Skill("Shapeshift", "skill-Defense Up",
+              skillTypeEnum.Passive, "skillShapeshift", 0, 0,
+              "Increases own defense by 10%."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Nursery Rhyme", "A Tale For Somebody's Sake",
+    npTypeEnum.AoEburst, "npNurseryRhyme", npStrengthAoE(), 1,
+    ["Deals 200% damage to enemies in range. Reduces their defense by 20% for 3 turns.",
+     "60% chance to reduce their NP gauge by 1 bar. Range: 4 spaces adjacent to the user."]);
   var npChargeTime;
 
   // ---------------

@@ -8,27 +8,34 @@ function TestMap(game) {
   var title = "Test Map";
   var difficulty = 1;
   var player = new Faction(game._playerData.name, 1, true);
-  var enemy  = new Faction("Enemy",  2);
+  var enemy  = new Faction("Enemy",  2, false);
 
   var bgm = game.sound.add("battle03", { volume: 0.7 } );
 
   var units = [
     // Player
     { unit: ElizabethBathory(game, player), x: 2, y: 3 },
-    // { unit: SerenityHassan(game, player),   x: 2, y:2 },
-    { unit: Astolfo(game, player),  x: 2, y: 2 },
+    //{ unit: NurseryRhyme(game, player),  x: 2, y:1 },
+    { unit: Artemis(game, player),  x: 2, y: 2 },
 
     // Enemy
-    // { unit: Astolfo(game, enemy),  x: 5, y: 2 },
-    { unit: Boudica(game, enemy), x: 8, y: 7 },
-    { unit: Medusa(game, enemy), x: 8, y: 6 },
+    { unit: ArtoriaAlter(game, enemy),  x: 5, y: 2 },
+    { unit: Soldier(game, enemy), x: 5, y: 3 },
+    { unit: Skeleton(game, enemy), x: 6, y: 3 },
   ];
 
-  units[2].unit._npChargeTime = 1;
+  var structures = [
+    { struct: Fortress(), x: 3, y: 4, faction: null  },
+    { struct: Workshop(), x: 7, y: 5, faction: enemy, units: [
+        { load: "Celtic", cost: 200, classes: ["Saber", "Archer", "Lancer", "Caster"] },
+      ], cooldown: 2 },
+    { struct: Workshop(), x: 5, y: 5, faction: enemy, units: [
+        { load: "Soldier", cost: 100, classes: ["Saber", "Archer", "Lancer"] },
+      ], cooldown: 2 },
+  ];
 
-  // AI Testing
-  // units[2].unit.aiType = aiTypeEnum.Defensive;
-  // units[3].unit.aiType = aiTypeEnum.Zone;
+  units[1].unit._npChargeTime = 1;
+
 
   // var unitPlacement = [
   //   { x: 0, y: 1, dist: 4, dir: "south" },
@@ -43,7 +50,7 @@ function TestMap(game) {
     [O, F, F, F, P, F, G, W, G, M, M, M, O, O, M, M, M, M, G, G, G, G, G, F, M, O], // 1
     [G, F, F, L, P, G, G, W, G, U, M, M, O, O, F, F, F, F, G, G, G, G, G, F, M, O], // 2
     [G, F, P, P, P, P, P, W, G, G, G, M, O, O, M, M, M, G, O, O, O, G, G, F, M, O], // 3
-    [G, G, G, T, G, P, F, F, G, G, G, G, O, O, F, F, F, G, O, G, G, G, G, F, M, O], // 4
+    [G, G, G, G, G, P, F, F, G, G, G, G, O, O, F, F, F, G, O, G, G, G, G, F, M, O], // 4
     [O, F, O, B, O, G, G, G, G, G, G, G, O, O, M, M, G, G, O, O, O, G, G, G, G, O], // 5
     [O, G, B, B, B, G, G, G, G, G, G, G, O, O, F, F, G, G, G, G, G, G, G, F, M, O], // 6
     [O, W, O, B, O, G, G, G, G, G, G, G, B, B, G, G, G, G, G, G, F, G, G, F, M, O], // 7
@@ -68,10 +75,10 @@ function TestMap(game) {
   var map = new Map(game, title, bgm);
   map.tiles = tiles;
   map.startUnits = units;
+  map.startStructs = structures;
   map.addZones(zones, connections);
   map.addPlayerFaction(player);
   map.difficulty = difficulty;
-  // map.unitPlacement = unitPlacement;
   return map;
 }
 // ==========================================================

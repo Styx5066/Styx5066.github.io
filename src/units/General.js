@@ -169,6 +169,23 @@ function servantAtk(atk) {
 }
 
 //---------------
+// DESCRIPTION: Standard enemy HP
+//---------------
+function defaultHP(rank) {
+  if (rank == rankEnum.Gold) { return 150; }
+  if (rank == rankEnum.Silver) { return 85; }
+  return 50;
+}
+//---------------
+// DESCRIPTION: Standard enemy Atk
+//---------------
+function defaultAtk(rank) {
+  if (rank == rankEnum.Gold) { return 90; }
+  if (rank == rankEnum.Silver) { return 70; }
+  return 50;
+}
+
+//---------------
 // DESCRIPTION: Normalizes Skill cooldown from the FGO value
 //---------------
 function servantCooldown(cooldown) {

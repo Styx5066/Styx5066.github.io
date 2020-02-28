@@ -19,10 +19,12 @@ class Tile {
   //  maxHP          (I,OPT) - HP the unit has if it is damagable (default: no HP)
   //  isClaimable    (I,OPT) - If true, this structure can be claimed by a faction
   //  faction        (I,OPT) - Faction the structure belongs to
+  //  baseImage      (I,OPT) - Image to display underneath tile instead of the default base
   //---------------
-  constructor(image, groundMoveCost, flightMoveCost, groundDefense, overImage, maxHP, isClaimable, faction) {
+  constructor(image, groundMoveCost, flightMoveCost, groundDefense, overImage, maxHP, isClaimable, faction, baseImage) {
     this._image = image;
     this._overImage = overImage;
+    this._baseImage = baseImage;
     this._groundMoveCost = groundMoveCost || 1;
     this._flightMoveCost = flightMoveCost || 1;
     this._groundDefense  = groundDefense  || 0;
@@ -39,6 +41,10 @@ class Tile {
     this._isClaimable = isClaimable || false;
     this._faction = faction;
 
+    this._workshopUnits = [];
+    this._workshopTurn = 0;
+    this._workshopCooldown = 0;
+
     this._unit = null;
     this._bigImage = false;   // Whether this has replaced with a big image in map display
   }
@@ -50,6 +56,10 @@ class Tile {
   // Over image name
   get overImage() { return this._overImage; }
   set overImage(x) { this._overImage = x; }
+
+  // Base image name
+  get baseImage() { return this._baseImage; }
+  set baseImage(x) { this._baseImage = x; }
 
   // Ground Movement Cost
   get groundMoveCost() { return this._groundMoveCost; }
@@ -67,12 +77,19 @@ class Tile {
   get zone() { return this._zone; }
   set zone(x) { this._zone = x; }
 
+
   // Faction
   get isClaimable() { return this._isClaimable; }
   set isClaimable(x) { this._isClaimable = x; }
 
   get faction() { return this._faction; }
   set faction(x) { this._faction = x; }
+
+  // Workshop Units (array of load/cost/classes objects)
+  addWorkshopUnit(load, cost, classes) { addElement({ load: load + "", cost: cost, classes: classes }, this._workshopUnits); }
+  removeWorkshopUnit(load, cost, classes) { removeElement({ load: load + "", cost: cost, classes: classes }, this._workshopUnits); }
+  get workshopUnits() { return this._workshopUnits; }
+  set workshopUnits(x) { this._workshopUnits = x; }
 
 
   // HP
@@ -90,10 +107,12 @@ class Tile {
   // Tile X point at origin 0,0
   get tileX() { return this._tileX; }
   set tileX(x) { this._tileX = x; }
+  get xTile() { return Math.floor(this.tileX / 64); }
 
   // Tile y point at origin 0,0
   get tileY() { return this._tileY; }
   set tileY(x) { this._tileY = x; }
+  get yTile() { return Math.floor(this.tileY / 64); }
 
   // Damage Sprite
   get damageSprite() { return this._damageSprite; }
@@ -208,6 +227,23 @@ class Tile {
   }
 
   //---------------
+  // Prevent JS errors when a structure is caught up in NP AoE attacks
+  //---------------
+  hasTrait(trait) { return false; }
+  getStatus(trait) { return null; }
+
+  allStatuses() { }
+  addStatus(status, noFloat, floatDelay, attacker) { }
+  removeStatus(status) { }
+  hasStatus(status) { return false; }
+  getStatus(status) { return null; }
+
+  instantKill(param1, param2) { return false; }
+  reduceSkillCooldown() { }
+  increaseNPCharge(amount) { }
+  decreaseNPCharge(amount) { }
+
+  //---------------
   // DESCRIPTION: Claims the structure for the faction, if claimable
   // PARAMS:
   //  faction (I,REQ) - Faction
@@ -220,6 +256,24 @@ class Tile {
     this._isClaimable = false;
     this._faction = faction;
     return true;
+  }
+
+
+  //---------------
+  // DESCRIPTION: Returns available workshop units based on cost
+  // PARAMS:
+  //  mana (I,REQ) - Units that cost more than this are filtered out
+  //---------------
+  availWorkshopUnits(mana) {
+    var avail = [];
+
+    for (const workshopUnit of this._workshopUnits) {
+      if (workshopUnit.cost <= mana) {
+        avail.push(workshopUnit);
+      }
+    }
+
+    return avail;
   }
 
 }

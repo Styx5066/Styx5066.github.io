@@ -3,6 +3,152 @@
 */
 
 // ==========================================================
+function Artemis(game, faction) {
+  // Basic info
+  var name = "Artemis";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Saber;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [ "Undead", "Vampire", "Female", "Humanoid", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = [];
+
+  // Stats
+  var maxHP = servantHP(11589);
+  var attack = servantAtk(10248);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Vampire Bite", "skill-Mad Enhancement",
+              skillTypeEnum.Enemy, "skillVampire", servantCooldown(7), 1,
+              ["Deals 125& damage to one enemy. Recovers own HP by 2/3rds of the damage dealt."]),
+    new Skill("Supernatural Reflexes", "skill-Evasion",
+              skillTypeEnum.Self, "skillEvasionAtk", servantCooldown(7), 0,
+              ["Grants self Evasion for 2 attacks."]),
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Magic Resistance", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResA", 0, 0,
+              "Increases own debuff resistance by 20%."),
+    new Skill("Vampiric Regeneration", "skill-Regen",
+              skillTypeEnum.Passive, "skillRegenPassive", 0, 0,
+              "Recovers HP by 5 every turn."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Mystery Killer", "Kokoro-Watari",
+    npTypeEnum.Single, "npArtemis", npStrengthSingle(), 1,
+    ["Deals 300% damage to one enemy. Deals an extra 50% damage to enemies with the Demonic, Servant, or Undead trait.",
+     "Range: 1 adjacent enemy."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
+function ArtoriaAlter(game, faction) {
+  // Basic info
+  var name = "Artoria Alter";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Saber;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [ "Arthur", "Dragon", "Female", "King", "Humanoid", "Saberface", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = [ "...I have come in response to your summon. Are you the one who is to be my Master?"];
+
+  // Stats
+  var maxHP = servantHP(11589);
+  var attack = servantAtk(10248);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Mana Burst", "skill-Damage Up",
+              skillTypeEnum.Self, "skillAttackUp40", servantCooldown(7), 0,
+              ["Increases own attack by 40% for 1 turn."]),
+    new Skill("Twilight Star", "skill-NP Charge",
+              skillTypeEnum.Self, "skillTwilight", servantCooldown(7), 0,
+              ["Increases own defense by 10% for 3 turns and charges own NP gauge by 1 bar."])
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Magic Resistance", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResA", 0, 0,
+              "Increases own debuff resistance by 20%."),
+    new Skill("Black Armor", "skill-Defense Up",
+              skillTypeEnum.Passive, "skillShapeshift", 0, 0,
+              "Increases own defense by 10%."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Excalibur Morgan", "Sword of Promised Victory",
+    npTypeEnum.AoEdir, "npExcalibur", npStrengthAoE(), 4,
+    ["Deals 200% damage to enemies in range. Increases own NP gauge by 1 bar.",
+     "Range: A line of 4 spaces in one direction."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
 function Bedivere(game, faction) {
   // Basic info
   var name = "Bedivere";
@@ -192,6 +338,80 @@ function Jason(game, faction) {
     npTypeEnum.AoEburst, "npJason", npStrengthAoE(), 1,
     ["Deals 200% damage to enemies in range. Deals an extra 50% damage for each Argo-Related ally on the field except self.",
      "Range: 4 spaces adjacent to the user."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
+function Musashi(game, faction) {
+  // Basic info
+  var name = "Miyamoto Musashi";
+  var load = noSpaces("Musashi");
+  var unitClass = classEnum.Saber;
+  var image = "Musashi";
+  var rank = rankEnum.Gold;
+  var traits = [ "Humanoid", "Female", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = [ "Shinmen Musashi-no-Kami Fujiwara-no-Harunob... Sorry, let me start over!",
+                "Servant Saber, Shinmen Musashi at your service! Make my stay a fun one, Master!" ];
+
+  // Stats
+  var maxHP = servantHP(13635);
+  var attack = servantAtk(12037);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Fifth Form", "skill-Fifth Form",
+              skillTypeEnum.Self, "skillFifthForm", servantCooldown(8), 0,
+              ["Next normal attack hits twice and charges NP Gauge by one bar."]),
+    new Skill("Nothingness", "skill-Invincible",
+              skillTypeEnum.Self, "skillNothingness", servantCooldown(8), 0,
+              ["Grants self Invincible for 1 turn. Removes own debuffs."])
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Magic Resistance", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResA", 0, 0,
+              "Increases own debuff resistance by 20%."),
+    new Skill("Empyrean Eye", "skill-Pierce Invincible",
+              skillTypeEnum.Passive, "skillEmpyreanEye", 0, 0,
+              "Attacks ignore the Invincible status. Increases own attack by 10%."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Rikudou Gorin - Kurikara Tenshou", "Six Realms Five Planes - The Divine Figure of Kurikara",
+    npTypeEnum.Single, "npDamageBuffRemove", (npStrengthSingle() + 0.5), 1,
+    ["Deals 350% damage to one enemy and removes their buffs.",
+     "Range: 1 adjacent enemy."]);
   var npChargeTime;
 
   // ---------------

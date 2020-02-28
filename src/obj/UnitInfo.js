@@ -73,7 +73,7 @@ class UnitInfo {
     var cameraHeight = 551;
     var mapCamera = game.cameras.add(cameraX, cameraY, cameraWidth, cameraHeight);
 
-    cameraX += 1024;
+    cameraX -= 1024;
     cameraY += 700;
     mapCamera.useBounds = true;
     mapCamera.setBounds(cameraX, cameraY, cameraWidth, cameraHeight);
@@ -279,6 +279,12 @@ class UnitInfo {
     this.unitInfoAddText(game, "Move Range", depth, xLabel, yPos, labelFill, 2);
     this.unitInfoAddText(game, unit.movement, depth, xValue, yPos, valueFill, 2);
     yPos += 30;
+
+    // Traits
+    this.unitInfoAddText(game, "Traits", depth, xLabel, yPos, labelFill, 2);
+    var text = this.unitInfoAddText(game, unit.traits.join(", "), depth, xValue, yPos, valueFill, 2, 16);
+    text.setWordWrapWidth(390);
+    yPos += text.displayHeight + 10;
 
     // ----------
 

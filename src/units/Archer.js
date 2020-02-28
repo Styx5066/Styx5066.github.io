@@ -151,6 +151,161 @@ function Arash(game, faction) {
 // ==========================================================
 
 // ==========================================================
+function Atalanta(game, faction) {
+  // Basic info
+  var name = "Atalanta";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Archer;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [ "Argo-Related", "Female", "Humanoid", "Servant", "Weak to Enuma Elish" ];
+  var aiType = aiTypeEnum;
+
+  var intro = ["Art thou my Master? Best Regards."];
+
+  // Stats
+  var maxHP = servantHP(12476);
+  var attack = servantAtk(8633);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Art of the Hunt", "skill-Damage Up",
+              skillTypeEnum.Self, "skillHunt", servantCooldown(7), 0,
+              ["Increases own attack by 10% for 3 turns.",
+               "Increases own damage against enemies with the Beast trait by 50% for 1 turn."]),
+    new Skill("Calydonian Hunt", "skill-Evasion",
+               skillTypeEnum.Self, "skillEvasionNP", servantCooldown(8), 0,
+               ["Grants self Evasion for 1 turn.",
+                "Increases own NP charge generation to 1 bar per turn for 3 turns."]),
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Magic Resistance (Low)", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResLow", 0, 0,
+              "Increases own debuff resistance by 10%."),
+    new Skill("Sharpshooter", "skill-Sure Hit",
+              skillTypeEnum.Passive, "skillSharpshooter", 0, 0,
+              "Increases own attack range by 1."),
+    new Skill("Crossing Arcadia", "skill-Travel",
+              skillTypeEnum.Passive, "skillRiding", 0, 0,
+              "Increases own movement range by 1."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Phoebus Catastrophe", "Complaint Message on the Arrow",
+    npTypeEnum.AoEdir, "npDamage", npStrengthAoE(), 4,
+    ["Deals 200% damage to enemies in range.",
+     "Range: A line of 4 spaces in one direction."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
+function Gilgamesh(game, faction) {
+  // Basic info
+  var name = "Gilgamesh";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Archer;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [ "Divine", "Humanoid", "King", "Male", "Servant", "Weak to Enuma Elish" ];
+  var aiType = aiTypeEnum;
+
+  var intro = [ "Fufuhahahahaha! Summoning me means that you've used up all of your luck, mongrel." ];
+
+  // Stats
+  var maxHP = servantHP(13097);
+  var attack = servantAtk(12280);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Treasury of Babylon", "skill-NP Regen",
+              skillTypeEnum.Self, "skillBabylon", servantCooldown(8), 0,
+              ["Increases own NP charge generation to 1 bar per turn for 3 turns.",
+               "Increases own Attack by 10% for 3 turns."]),
+    new Skill("Enkidu: Chains of Heaven", "skill-Stun",
+             skillTypeEnum.Enemy, "skillStunEnkidu", servantCooldown(8), 1,
+             ["Stuns one enemy for 1 turn. Stuns Divine enemies for 1 additional turn."]),
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Magic Resistance", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResA", 0, 0,
+              "Increases own debuff resistance by 20%."),
+    new Skill("Divinity", "skill-Divinity",
+              skillTypeEnum.Passive, "skillDivinity", 0, 0,
+              "Increases own damage by 5."),
+    new Skill("Golden Armor", "skill-Defense Up",
+              skillTypeEnum.Passive, "skillShapeshift", 0, 0,
+              "Increases own defense by 10%."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Enûma Eliš", "The Star of Creation that Split Heaven and Earth",
+    npTypeEnum.AoEall, "npGilgamesh", 1, 50,
+    ["Deals 100% damage to all enemies. Deals an extra 50% damage to enemies Weak to Enuma Elish.",
+     "Can only be used once per battle."]);
+  var npChargeTime = 5;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
 function Kuro(game, faction) {
   // Basic info
   var name = "Kuro";
@@ -184,7 +339,7 @@ function Kuro(game, faction) {
   var passiveSkills = [
     new Skill("Magic Resistance", "skill-Magic Resistance",
               skillTypeEnum.Passive, "skillMagicResA", 0, 0,
-              "Increases own debuff resistance by 10%."),
+              "Increases own debuff resistance by 20%."),
     new Skill("Teleportation", "skill-Shadow",
               skillTypeEnum.Passive, "skillRiding", 0, 0,
               "Increases own movement range by 1. Able to pass through enemies."),

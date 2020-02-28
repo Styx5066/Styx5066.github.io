@@ -10,7 +10,8 @@ const npTypeEnum = {
   AoEdir:    "AoE Directional",
   AoEburst:  "AoE Burst",
   AoEcone:   "AoE Cone",
-
+  AoEall:    "AoE All",
+  Space:     "Space",
   AllyBurst: "AoE Burst on Allies",
 }
 
@@ -164,13 +165,31 @@ class NoblePhantasm {
         map._unitInfoBox.setDepth(50);
         map.isTurnTransition = false;
 
+        // Check NP strength
+        var strength = this._strength;
+        var npDamage = user.getStatus("NP Damage Up");
+        if (npDamage) {
+          strength += npDamage.strength;
+        }
+
         // Do damage
         if (npSound) { npSound.play(); }
         else { map._sounds.npDamage.play(); }
 
         var isFirst = true;
         for (const target of targetList) {
-          window[this._effectFun](map, user, target, this._strength, isFirst);
+          // Ignore errors so the game doesn't freeze up in the middle of battle
+          try {
+            window[this._effectFun](map, user, target, this._strength, isFirst);
+          }
+          catch (exception) {
+            var targetName;
+            if (target.hasOwnProperty("_tileSprite")) { targetName = target.image; }
+            else { targetName = target.name; }
+            console.log("[Error] Noble Phantasm '" + this._name + "' encountered an issue attacking '" + targetName + "'.")
+            console.log(exception)
+          }
+
           isFirst = false;
         }
 
@@ -258,6 +277,19 @@ function npArash(map, user, target, strength, isFirst) {
 }
 
 //---------------
+// Deals 300% damage to one enemy. Deals an extra 50% damage to enemies with the Demonic, Servant, or Undead trait.
+//---------------
+function npArtemis(map, user, target, strength, isFirst) {
+  // Extra damage
+  if (target.hasTrait("Demonic")) { strength += 0.5; }
+  else if (target.hasTrait("Servant")) { strength += 0.5; }
+  else if (target.hasTrait("Undead")) { strength += 0.5; }
+
+  // Damage
+  map.attack(target, strength, true, true);
+}
+
+//---------------
 // Deals damage that ignores defense to enemies in range. Grants self evasion for 2 attacks.
 //---------------
 function npAstolfo(map, user, target, strength, isFirst) {
@@ -268,7 +300,7 @@ function npAstolfo(map, user, target, strength, isFirst) {
   // Give self evasion
   if (isFirst) {
     user.addStatus(new Status(
-      "Evasion", "status-Evade", statusTypeEnum.Block, buffTypeEnum.Buff, 3, 100, -1,
+      "Evasion", "status-Evade", statusTypeEnum.Block, buffTypeEnum.Buff, 2, 100, -1,
       "Evades attacks that are not Sure Hit"
     ), null, null, user);
   }
@@ -328,6 +360,20 @@ function npChevalier(map, user, target, strength, isFirst) {
 }
 
 //---------------
+// Deals 300% damage to one enemy and transforms them into a Pig for 1 turn.
+//---------------
+function npCirce(map, user, target, strength, isFirst) {
+  // Pig
+  target.addStatus(new Status(
+    "Pig", "status-Pig", statusTypeEnum.Stun, buffTypeEnum.Debuff, 0, 100, 1,
+    "Unable to move or act"
+  ), null, 1000, user);
+
+  // Damage
+  map.attack(target, strength, true, true);
+}
+
+//---------------
 // Grants Sure Hit to Self for 1 turn and deals 300% damage to one enemy. 5% chance to Instant-Kill them.
 // Reduces their Defense by 10% for 3 turns.
 //---------------
@@ -364,6 +410,38 @@ function npDamage(map, user, target, strength, isFirst) {
 }
 
 //---------------
+// Deals damage to one enemy and removes their buffs.
+//---------------
+function npDamageBuffRemove(map, user, target, strength, isFirst) {
+  // Remove target's buffs
+  if (target.hasOwnProperty("_allStatuses")) {
+    var allStatuses = [...target.allStatuses];
+    for (const status of allStatuses) {
+      if (status.buffType == buffTypeEnum.Buff) {
+        target.removeStatus(status);
+      }
+    }
+  }
+
+  // Damage
+  map.attack(target, strength, true, true);
+}
+
+//---------------
+// Deals 200% damage to enemies in range. Reduces their defense by 20% for 3 turns.
+//---------------
+function npDamageDefense(map, user, target, strength, isFirst) {
+  // Reduce Defense
+  target.addStatus(new Status(
+    "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -20, 100, 3,
+    "Decreases Defense by 20%"
+  ), null, 1000, user);
+
+  // Damage
+  map.attack(target, strength, true, true);
+}
+
+//---------------
 // Increases defense by 30% for 3 turns.
 //---------------
 function npDefenseUp(map, user, target, strength, isFirst) {
@@ -373,6 +451,32 @@ function npDefenseUp(map, user, target, strength, isFirst) {
     "Increases Defense by 30%"
   ), null, null, user);
 }
+
+//---------------
+// Deals 300% damage to one enemy and removes their buffs.
+// Inflicts Curse with 5 damage for 5 turns.
+//---------------
+function npDiarmuid(map, user, target, strength, isFirst) {
+  // Remove target's buffs
+  if (target.hasOwnProperty("_allStatuses")) {
+    var allStatuses = [...target.allStatuses];
+    for (const status of allStatuses) {
+      if (status.buffType == buffTypeEnum.Buff) {
+        target.removeStatus(status);
+      }
+    }
+  }
+
+  // Curse
+  target.addStatus(new Status(
+    "Curse", "status-Curse", statusTypeEnum.DmgPT, buffTypeEnum.Debuff, 5, 100, 5,
+    "Takes 5 damage at the beginning of each turn"
+  ), null, 1000, user);
+
+  // Damage
+  map.attack(target, strength, true, true);
+}
+
 
 //---------------
 // Deals 200% damage that ignores defense buffs to enemies in range. Inflicts Curse with 5 damage for 3 turns to them.
@@ -387,6 +491,80 @@ function npElizabeth(map, user, target, strength, isFirst) {
   // Damage
   var defIgnore = true;
   map.attack(target, strength, true, true, defIgnore);
+}
+
+//---------------
+// Deals damage and increases own NP gauge by 1 bar.
+//---------------
+function npExcalibur(map, user, target, strength, isFirst) {
+  // Damage
+  map.attack(target, strength, true, true);
+
+  // Increase NP
+  if (isFirst) {
+    user.increaseNPCharge(2);
+  }
+}
+
+//---------------
+// Deals 200% damage to enemies in range. Reduces their attack by 10% for 3 turns.
+// Sacrifices self. 10% chance to grant self Guts for 1 time.
+//---------------
+function npFrankenstein(map, user, target, strength, isFirst) {
+  // Attack Down
+  target.addStatus(new Status(
+    "Attack Down", "status-Attack Down", statusTypeEnum.Attack, buffTypeEnum.Debuff, -10, 100, 3,
+    "Decreases Attack by 5%"
+  ), null, 1000, user);
+
+  // Damage
+  map.attack(target, strength, true, true);
+
+  // Guts / Sacrifice
+  if (isFirst) {
+    var rand = getRandomInt(0, 100);
+    if (rand >= 80) {
+      user.addStatus(new Status(
+        "Guts", "status-Guts", statusTypeEnum.Check, buffTypeEnum.Buff, 1, 100, -1,
+        "Revives with 1/4th HP when defeated"
+      ), null, null, user);
+    }
+
+    map._game.time.delayedCall(1000, () => { map.killUnit(user); });
+  }
+}
+
+//---------------
+// Grants Pierce Invincible to Self for 1 turn and deals 300% damage to one enemy.
+// Reduces their Defense by 10% for 3 turns. Range: 1 adjacent enemy.
+//---------------
+function npGareth(map, user, target, strength, isFirst) {
+  // Pierce Invincible
+  user.addStatus(new Status(
+    "Pierce Invincible", "status-Pierce Invincible", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, 1,
+    "Allows attacking those with the Invincible status"
+  ), null, null, user);
+
+  // Reduce Defense
+  target.addStatus(new Status(
+    "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -10, 100, 1,
+    "Decreases Defense by 10%"
+  ), null, 1000, user);
+
+  // Damage
+  map.attack(target, strength, true, true);
+}
+
+//---------------
+// Deals 100% damage to all enemies. Deals an extra 50% damage to enemies Weak to Enuma Elish.
+// Can only be used once per battle.
+//---------------
+function npGilgamesh(map, user, target, strength, isFirst) {
+  // Weak to Enuma Elish
+  if (target.hasTrait("Weak to Enuma Elish")) { strength += 0.5; }
+
+  // Damage
+  map.attack(target, strength, true, true);
 }
 
 //---------------
@@ -410,6 +588,18 @@ function npHeracles(map, user, target, strength, isFirst) {
     "Guts", "status-Guts", statusTypeEnum.Check, buffTypeEnum.Buff, 3, 100, -1,
     "Revives with 1/4th HP when defeated"
   ), null, 3000, user);
+}
+
+//---------------
+// Deals 300% damage that ignores defense buffs to one enemy. Deals an extra 50% damage to Female enemies.
+//---------------
+function npJack(map, user, target, strength, isFirst) {
+  // Female enemies
+  if (target.hasTrait("Female")) { strength += 0.5; }
+
+  // Damage
+  var defIgnore = true;
+  map.attack(target, strength, true, true, defIgnore);
 }
 
 //---------------
@@ -466,6 +656,45 @@ function npKuro(map, user, target, strength, isFirst) {
 }
 
 //---------------
+// Deals 300% damage to one enemy. Deals an extra 50% to enemies with the Dragon trait.
+// Increases Attack and Defense by 30% for 3 turns.
+// Deactivates and Seals own Skills for 3 turns. [Demerit]
+//---------------
+function npLancelot(map, user, target, strength, isFirst) {
+  if (isFirst) {
+    // Remove & Seal skills
+    var status = user.getStatus("Disguise");
+    if (status) { user.removeStatus(status); }
+
+    var status = user.getStatus("Class Change");
+    if (status) { user.removeStatus(status); }
+
+    user.addStatus(new Status(
+      "Seal Skills", "status-Skill Seal", statusTypeEnum.Check, buffTypeEnum.Debuff, 0, 500, 3,
+      "Prevents use of Skills"
+    ), null, null, user);
+
+    // Attack
+    user.addStatus(new Status(
+      "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, 30, 100, 3,
+      "Increases Attack by 30%"
+    ), null, 1500, user);
+
+    // Defense
+    user.addStatus(new Status(
+      "Defense Up", "status-Defense Up", statusTypeEnum.Defense, buffTypeEnum.Buff, 30, 100, 3,
+      "Increases Defense by 30%"
+    ), null, 3000, user);
+  }
+
+  // Dragon extra damage
+  if (target.hasTrait("Dragon")) { strength += 0.5; }
+
+  // Damage
+  map.attack(target, strength, true, true);
+}
+
+//---------------
 // Increases own defense by 40% for 3 turns. Draws attention of enemies to self for 3 turns.
 //---------------
 function npLeonidas(map, user, target, strength, isFirst) {
@@ -483,19 +712,46 @@ function npLeonidas(map, user, target, strength, isFirst) {
 }
 
 //---------------
-// Deals damage to one enemy and removes their buffs.
+// Reduces Attack and Defense of enemies in range by 20% for 3 turns. 60% chance to Charm them for 1 turn.
 //---------------
-function npMedea(map, user, target, strength, isFirst) {
-  // Remove target's buffs
-  var allStatuses = [...target.allStatuses];
-  for (const status of allStatuses) {
-    if (status.buffType == buffTypeEnum.Buff) {
-      target.removeStatus(status);
-    }
-  }
+function npMataHari(map, user, target, strength, isFirst) {
+  // Attack Down
+  target.addStatus(new Status(
+    "Attack Down", "status-Attack Down", statusTypeEnum.Attack, buffTypeEnum.Debuff, -20, 100, 3,
+    "Decreases Attack by 10%"
+  ), null, null, user);
+
+  // Defense Down
+  target.addStatus(new Status(
+    "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -20, 100, 3,
+    "Decreases Defense by 10%"
+  ), null, 1500, user);
+
+  // Charm
+  target.addStatus(new Status(
+    "Charm", "status-Charm", statusTypeEnum.Stun, buffTypeEnum.Debuff, 0, 60, 1,
+    "Unable to move or act"
+  ), null, 3000, user);
+}
+
+//---------------
+// Deals 300% damage to one enemy. Deals 50% extra damage to Male enemies.
+// Charms Male enemies for 1 turn. Range: 1 adjacent enemy.
+//---------------
+function npMedb(map, user, target, strength, isFirst) {
+  // Male enemies
+  if (target.hasTrait("Male")) { strength += 0.5; }
 
   // Damage
   map.attack(target, strength, true, true);
+
+  // Charm
+  if (target.hasTrait("Male")) {
+    target.addStatus(new Status(
+      "Charm", "status-Charm", statusTypeEnum.Stun, buffTypeEnum.Debuff, 0, 100, 1,
+      "Unable to move or act"
+    ), null, null, user);
+  }
 }
 
 //---------------
@@ -503,10 +759,12 @@ function npMedea(map, user, target, strength, isFirst) {
 //---------------
 function npMedeaLily(map, user, target, strength, isFirst) {
   // Remove target's debuffs
-  var allStatuses = [...target.allStatuses];
-  for (const status of allStatuses) {
-    if (status.buffType == buffTypeEnum.Debuff) {
-      target.removeStatus(status);
+  if (target.hasOwnProperty("_allStatuses")) {
+    var allStatuses = [...target.allStatuses];
+    for (const status of allStatuses) {
+      if (status.buffType == buffTypeEnum.Debuff) {
+        target.removeStatus(status);
+      }
     }
   }
 
@@ -523,6 +781,28 @@ function npNero(map, user, target, strength, isFirst) {
     "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -20, 100, 1,
     "Decreases Defense by 20%"
   ), null, 1000, user);
+
+  // Damage
+  var defIgnore = true;
+  map.attack(target, strength, true, true, defIgnore);
+}
+
+//---------------
+// Deals 200% damage to enemies in range. Reduces their defense by 20% for 3 turns.
+// 60% chance to reduce their NP gauge by 1 bar.
+//---------------
+function npNurseryRhyme(map, user, target, strength, isFirst) {
+  // Reduce Defense
+  target.addStatus(new Status(
+    "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -20, 100, 3,
+    "Decreases Defense by 20%"
+  ), null, 1000, user);
+
+  // NP Loss
+  var rand = getRandomInt(0, 100);
+  if (rand >= 40) {
+    target.decreaseNPCharge(2);
+  }
 
   // Damage
   var defIgnore = true;
@@ -598,6 +878,18 @@ function npTamamo(map, user, target, strength, isFirst) {
 
   // Heal
   target.heal(25);
+}
+
+//---------------
+// Summons the Tarasque to an adjacent space.
+// Can only be used once per battle.
+//---------------
+function npTarasque(map, user, target) {
+  // In this case, target is the space to spawn at
+  unit = Tarasque(map._game, user.faction);
+
+  map.spawnUnit(unit, target.x, target.y);
+  map.addActiveUnit(unit);
 }
 
 //---------------

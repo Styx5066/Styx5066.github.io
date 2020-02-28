@@ -251,6 +251,7 @@ class MapEditor {
       { image: "ocean",    name: "O" },
       { image: "path",     name: "P" },
       { image: "wall",     name: "W" },
+      { image: "stone",    name: "S" },
       { image: "river",    name: "R" },
     ];
 

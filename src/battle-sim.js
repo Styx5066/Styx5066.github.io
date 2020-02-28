@@ -3,6 +3,39 @@
 */
 
 //---------------
+// DESCRIPTION: Returns a list of all battle sim map names, descriptions, and map loading code
+// RETURNS: Array of map info objects
+//---------------
+function getBattleSimMaps() {
+  var maps = [
+    { name: "Britannia Plains", load: "BritPlains",    image: "Boudica-Portrait",    diff: 1 },
+    { name: "Temple Grounds",   load: "TempleGrounds", image: "Medea-Portrait",      diff: 1 },
+    { name: "Roaming Boars",    load: "RoamingBoars",  image: "Demon Boar-Portrait", diff: 1 },
+
+    { name: "Archer Row",       load: "ArcherVolleys", image: "Arash-Portrait",      diff: 1 },
+    { name: "Assassination",    load: "Assassination", image: "Cursed Arm Hassan-Portrait", diff: 1 },
+    { name: "Castle of Snow",   load: "CastleOfSnow",  image: "Heracles-Portrait",   diff: 2 },
+
+    { name: "Piglet Island",    load: "PigletIsland",  image: "Pig-Portrait",        diff: 2 },
+    { name: "Failed Experiments", load: "FailedExperiments",  image: "Chimera-Portrait", diff: 2 },
+    { name: "Roma",             load: "Roma",          image: "Nero-Portrait",       diff: 2 },
+
+    { name: "Golem Range",      load: "GolemRange",    image: "Golem Stone-Portrait", diff: 2 },
+    { name: "Queen of Connacht", load: "QueenMedb",    image: "Medb-Portrait",       diff: 2 },
+    { name: "The Argonauts",    load: "Argonauts",     image: "Jason-Portrait",      diff: 3 },
+  ];
+
+  if (devMode()) {
+    maps.push({ name: "Servant Test",     load: "ServantMap",    image: "Unknown-Gold-Full" });
+    maps.push({ name: "Enemy Test",       load: "EnemyMap",      image: "Skeleton-Saber-Portrait" });
+    maps.push({ name: "Test Map",         load: "TestMap",       image: "Astolfo-Portrait"  });
+    // maps.push({ name: "Advance Wars 1",   load: "AdvanceWars1",  image: "Medea-Portrait"    });
+  }
+
+  return maps;
+}
+
+//---------------
 // DESCRIPTION: Loads assets for the Battle Simulation menu
 // PARAMS:
 //  game (I,REQ) - Game object
@@ -16,6 +49,7 @@ function preloadBattleSim(game) {
   game.load.image("map-box", "assets/ui/map-box.png");
   game.load.image("map-box-mask", "assets/ui/map-box-mask-sm.png");
   game.load.image("completed", "assets/ui/completed.png");
+  game.load.image("star", "assets/ui/star.png");
 
   preloadUI(game);
   preloadClassIcons(game);
@@ -76,30 +110,6 @@ function createBattleSim(game) {
   // Map list
   showBattleSimMaps(game, sounds, music, playerData);
 
-}
-
-//---------------
-// DESCRIPTION: Returns a list of all battle sim map names, descriptions, and map loading code
-// RETURNS: Array of map info objects
-//---------------
-function getBattleSimMaps() {
-  var maps = [
-    { name: "Britannia Plains", load: "BritPlains",    image: "Boudica-Portrait" },
-    { name: "Temple Grounds",   load: "TempleGrounds", image: "Medea-Portrait" },
-    { name: "Roaming Boars",    load: "RoamingBoars",  image: "Demon Boar-Portrait" },
-    { name: "Archer Volleys",   load: "ArcherVolleys", image: "Arash-Portrait" },
-    { name: "Assassination",    load: "Assassination", image: "Cursed Arm Hassan-Portrait" },
-    { name: "Castle of Snow",   load: "CastleOfSnow",  image: "Heracles-Portrait" },
-  ];
-
-  if (devMode()) {
-    maps.push({ name: "Servant Test",     load: "ServantMap",    image: "Unknown-Gold-Full" });
-    maps.push({ name: "Enemy Test",       load: "EnemyMap",      image: "Skeleton-Saber-Portrait" });
-    maps.push({ name: "Test Map",         load: "TestMap",       image: "Astolfo-Portrait"  });
-    // maps.push({ name: "Advance Wars 1",   load: "AdvanceWars1",  image: "Medea-Portrait"    });
-  }
-
-  return maps;
 }
 
 //---------------
@@ -165,7 +175,7 @@ function showBattleSimMaps(game, sounds, music, playerData) {
       alpha: 1,
       ease: "Quad.easeIn",
       duration: 500,
-      delay: 500 + (count * 250),
+      delay: 500 + (count * 150),
     });
 
     // Increase camera bounds
@@ -197,6 +207,7 @@ function createMapButton(game, mapObj, x, y, action, sound, alpha, clearsLeft) {
   button.alpha = alpha;
   allUI.push(button);
 
+
   // Title
   var textX = x + 150 - 290;
   var textY = y + 45;
@@ -205,6 +216,7 @@ function createMapButton(game, mapObj, x, y, action, sound, alpha, clearsLeft) {
   var text = game.add.text(textX, textY, mapObj.name, style).setOrigin(0, 1);
   text.alpha = alpha;
   allUI.push(text);
+
 
   // Image
   if (mapObj.image) {
@@ -218,6 +230,7 @@ function createMapButton(game, mapObj, x, y, action, sound, alpha, clearsLeft) {
 
     allUI.push(image);
   }
+
 
   // Completed / Map message
   var completed, message;
@@ -243,13 +256,39 @@ function createMapButton(game, mapObj, x, y, action, sound, alpha, clearsLeft) {
     allUI.push(message);
   }
 
+
+  // Difficulty
+  if (mapObj.diff > 0) {
+    var diffStyle = { font: "14px FrizQuadrata", fill: "#fff", fontStyle: "bold", stroke: "#000", strokeThickness: 3 };
+    var difficulty = game.add.text((x + 155), (y + 5), "Difficulty: ", diffStyle).setOrigin(0, 0);
+    difficulty.alpha = alpha;
+    allUI.push(difficulty);
+
+    var diffStars = [];
+    var starX = x + 155 + difficulty.displayWidth - 4;
+    for (var i = 0; i < mapObj.diff; i++) {
+      var starSprite = game.add.sprite(starX, (y + 13), "star").setOrigin(0, 0.5);
+      starSprite.alpha = alpha;
+      allUI.push(starSprite);
+      diffStars.push(starSprite);
+
+      starX += 13;
+    }
+  }
+
+
   // Disabled
   if (clearsLeft > 0) {
     button.tint = 0xbbbbbb;
     if (image) { image.tint = 0xbbbbbb; }
     if (completed) { completed.tint = 0xbbbbbb; }
     if (message) { message.tint = 0xbbbbbb; }
+    if (difficulty) {
+      difficulty.tint = 0xbbbbbb;
+      for (const star of diffStars) { star.tint = 0xbbbbbb; }
+    }
   }
+
 
   // Button
   else {
@@ -264,6 +303,10 @@ function createMapButton(game, mapObj, x, y, action, sound, alpha, clearsLeft) {
       if (image) { image.tint = 0xbbbbbb; }
       if (completed) { completed.tint = 0xbbbbbb; }
       if (message) { message.tint = 0xbbbbbb; }
+      if (difficulty) {
+        difficulty.tint = 0xbbbbbb;
+        for (const star of diffStars) { star.tint = 0xbbbbbb; }
+      }
     } );
 
     button.on('pointerout',  function (pointer) {
@@ -271,6 +314,10 @@ function createMapButton(game, mapObj, x, y, action, sound, alpha, clearsLeft) {
       if (image) { image.tint = 0xffffff; }
       if (completed) { completed.tint = 0xffffff; }
       if (message) { message.tint = 0xffffff; }
+      if (difficulty) {
+        difficulty.tint = 0xffffff;
+        for (const star of diffStars) { star.tint = 0xffffff; }
+      }
     } );
   }
 

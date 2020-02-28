@@ -12,9 +12,11 @@
 function createNewPlayerData(name, image) {
   return {
     // Basics
-    name:   name,
-    image:  image,
-    qp:     4000,
+    name:     name,
+    image:    image,
+    qp:       4000,
+    lastSave: curDateTime(),
+    lastLoad: curDateSlashes(),
 
     // Options
     options: { },
@@ -37,8 +39,16 @@ function createNewPlayerData(name, image) {
 //---------------
 function savePlayerData(playerData) {
   if (playerData) {
+    playerData.lastSave = curDateTime();
     localStorage.setItem("playerData", JSON.stringify(playerData));
   }
+}
+
+//---------------
+// DESCRIPTION: DELETES the player data
+//---------------
+function deletePlayerData() {
+  localStorage.setItem("playerData", JSON.stringify(null));
 }
 
 //---------------
@@ -52,6 +62,7 @@ function addServant(playerData, servant) {
   if (!servant)    { return; }
   var load = servant.load + "";
   if (!load)       { return; }
+  if (playerData.servants.includes(servant.load)) { return; }
 
   // Add Servant
   playerData.servants.push(servant.load);
@@ -111,4 +122,68 @@ function reconcilePlayerData(playerData) {
       playerData[property] = value;
     }
   }
+}
+
+//---------------
+// DESCRIPTION: Loads player data from file
+// PARAMS:
+//  dataText (I,REQ) - Encrypted player Data
+//---------------
+function loadPlayerDataFile(game, dataText, music) {
+  if (!dataText) { return; }
+
+  // Load and validate player data
+  var playerData;
+  try { playerData = decryptPlayerData(dataText); }
+  catch { invalidPlayerData(); return; }
+
+  if (!playerData) { invalidPlayerData(); return; }
+  if (!playerData.name) { invalidPlayerData(); return; }
+  if (!playerData.image) { invalidPlayerData(); return; }
+  if (!playerData.lastSave) { invalidPlayerData(); return; }
+  if (!playerData.servants) { invalidPlayerData(); return; }
+  if (playerData.servants.length == 0) { invalidPlayerData(); return; }
+
+  // Confirmation
+  var confirmed = confirm("Are you sure you want to replace your current game data with this one?" +
+        "\n\t" + playerData.name +
+        "\n\tServants: " + playerData.servants.length +
+        "\n\tLast saved: " + playerData.lastSave +
+        "\n\nThis will restart the game." );
+
+  if (confirmed) {
+    playerData.lastLoad = curDateSlashes();
+    savePlayerData(playerData);
+    music.stop();
+    game.scene.start("MenuScene");
+  }
+}
+function invalidPlayerData() {
+  alert("Data is invalid. Unable to load.");
+}
+
+//---------------
+// DESCRIPTION: Returns an encrypted string version of the player data
+// PARAMS:
+//  playerData (I,REQ) - Saved player data
+//---------------
+function encryptPlayerData(playerData) {
+  if (!playerData) { return; }
+
+  var dataText = JSON.stringify(playerData);
+  dataText = btoa(dataText);
+  return ROT47(dataText);
+}
+
+//---------------
+// DESCRIPTION: Returns an decrypted string of the player data
+// PARAMS:
+//  dataText (I,REQ) - Encrypted player data
+//---------------
+function decryptPlayerData(dataText) {
+  if (!dataText) { return; }
+
+  var playerData = ROT47(dataText);
+  playerData = atob(playerData);
+  return JSON.parse(playerData);
 }

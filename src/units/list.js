@@ -33,45 +33,58 @@ function getAllServants(game, faction, summon) {
   //   Summonable
   // ==============================
   // Saber
+  load.push("ArtoriaAlter");      // Gold
   load.push("Bedivere");          // Silver
   load.push("ChevalierdEon");     // Silver
   load.push("Jason");             // Bronze
   load.push("Nero");              // Gold
+  load.push("Musashi");           // Gold
 
   // Archer
+  load.push("AnneBonny");         // Gold
   load.push("Arash");             // Bronze
+  load.push("Atalanta");          // Gold
+  load.push("Gilgamesh");         // Gold
   load.push("Kuro");              // Gold
   load.push("RobinHood");         // Silver
-  load.push("AnneBonny");         // Gold
-  // Gilgamesh (NP deals damage to ALL enemies, but only usable once per battle)
 
   // Lancer
   load.push("CuChulainn");        // Silver
+  load.push("Diarmuid");          // Silver
   load.push("ElizabethBathory");  // Gold
+  load.push("Gareth");            // Bronze
   load.push("Leonidas");          // Bronze
   load.push("Scathach");          // Gold
 
   // Rider
   load.push("Astolfo");           // Gold
   load.push("Boudica");           // Bronze
+  load.push("Medb");              // Gold
   load.push("Medusa");            // Silver
   load.push("MaryRead");          // Gold
+  load.push("SaintMartha");       // Gold
 
   // Caster
   load.push("Andersen");          // Bronze
+  load.push("Circe");             // Gold
   load.push("Medea");             // Silver
   load.push("MedeaLily");         // Gold
+  load.push("NurseryRhyme");      // Silver
   load.push("Tamamo");            // Gold
 
   // Assassin
   load.push("CursedArmHassan");   // Bronze
   load.push("HundredHassan");     // Silver
+  load.push("JacktheRipper");     // Gold
+  load.push("MataHari");          // Bronze
   load.push("SasakiKojirou");     // Bronze
   load.push("SerenityHassan");    // Gold
 
   // Berserker
   load.push("Heracles");          // Gold
+  load.push("Frankenstein");      // Gold
   load.push("Kiyohime");          // Silver
+  load.push("Lancelot");          // Gold
   load.push("PaulBunyan");        // Bronze
   load.push("Spartacus");         // Bronze
 
@@ -81,7 +94,7 @@ function getAllServants(game, faction, summon) {
   // ==============================
   if (!summon) {
     // Saber
-
+    load.push("Artemis");         // Gold
 
     // Archer
 
@@ -125,16 +138,28 @@ function getAllEnemies(game, faction) {
   // ==============================
   //   General
   // ==============================
+  load.push({ name: "Celtic", classes: ["Saber", "Archer", "Lancer", "Caster"] });
+  load.push({ name: "Chimera" });
   load.push({ name: "DemonBoar" });
+  load.push({ name: "DemonBoarGiant" });
   load.push({ name: "DragonToothWarrior", classes: ["Saber", "Archer", "Assassin"] });
-  load.push({ name: "Soldier" });
-  load.push({ name: "Skeleton",           classes: ["Saber", "Archer", "Lancer"] });
+  load.push({ name: "FairyTale" });
+
+  load.push({ name: "GolemRock" });
+  load.push({ name: "GolemStone" });
+  load.push({ name: "GolemIron" });
+  load.push({ name: "GolemCrystal" });
 
   load.push({ name: "HassanGozuru" });
   load.push({ name: "HassanMakuru" });
   load.push({ name: "HassanZayd" });
 
-
+  load.push({ name: "Pig" });
+  load.push({ name: "RomanSoldier" });
+  load.push({ name: "Soldier" });
+  load.push({ name: "Skeleton", classes: ["Saber", "Archer", "Lancer"] });
+  load.push({ name: "Spriggan" });
+  load.push({ name: "Tarasque" });
   // ==============================
 
   // Processing

@@ -53,6 +53,7 @@ class Map {
     this._turnNum = 1;
     this._isTurnTransition = true;
 
+    this._startStructs = [];
     this._startUnits = [];
     this._unitBank = [];
     this._activeUnits = [];
@@ -102,6 +103,8 @@ class Map {
     this._unitPlacement = [];
     this._placementTile = null;
     this._placementUnit = null;
+
+    this._lastTabbedUnit = null;
 
     // Factions
     this._factions = [];
@@ -158,6 +161,10 @@ class Map {
   // Starting Units
   get startUnits() { return this._startUnits; }
   set startUnits(x) { this._startUnits = x; }
+
+  // Starting Structures
+  get startStructs() { return this._startStructs; }
+  set startStructs(x) { this._startStructs = x; }
 
   // Enemies
   get enemyList() { return this._enemyList; }
@@ -253,6 +260,54 @@ class Map {
       for (const sprite of this._tempRange) { sprite.destroy(); }
       this._tempRange.length = 0;
     } });
+
+    // Tab button
+    this._game.input.keyboard.on('keydown', (event) => {
+      if (event.keyCode === 9) { event.preventDefault(); }
+    });
+    this._game.input.keyboard.on('keyup', (event) => {
+      if (event.keyCode === 9) {
+        event.preventDefault();
+
+        if (this._turnFaction.isPlayable && !this._isTurnTransition
+         && !this._selectedUnit && !this._unitInfo && !this._attacker
+         && !this._optionsOpen && !this._pauseTileHover) {
+          // Tab
+          var tabUnit = this._lastTabbedUnit;
+
+          // Grab first unit
+          if (!tabUnit) {
+            tabUnit = this._activeUnits[0];
+          }
+          // Grab unit after last
+          else {
+            var count = 0;
+            var unitIdx = 0;
+            for (const unit of this._activeUnits) {
+              if (tabUnit == unit) {
+                unitIdx = (count + 1);
+                break;
+              }
+              count++;
+            }
+
+            if (unitIdx >= this._activeUnits.length) { unitIdx = 0; }
+            tabUnit = this._activeUnits[unitIdx]
+          }
+
+          // Found unit to tab to
+          this._lastTabbedUnit = tabUnit;
+          var xPos = this.posX(tabUnit.xTile) + 32;
+          var yPos = this.posY(tabUnit.yTile) + 32;
+          this._camera.pan(xPos, yPos, 250, "Linear", true, (camera, progress, x, y) => {
+            if (progress == 1) {
+              this._game.input.activePointer.x = xPos - this._camera.scrollX;
+              this._game.input.activePointer.y = yPos - this._camera.scrollY;
+            }
+          });
+        }
+      }
+    });
 
 
     // Allow for unit placement
@@ -573,7 +628,9 @@ class Map {
     // ======================
     //   Faction Index
     // ======================
+    var firstTurn = false;
     if (this._factionIndex == -2) { return; }
+    if (this._factionIndex == -1) { firstTurn = true; }
     var factionIndex = this._factionIndex + 1;
     this._isTurnTransition = true;
     this._allowTileInfoSide = false;
@@ -589,10 +646,19 @@ class Map {
 
     this._factionIndex = factionIndex;
     this._turnFaction = this._factions[factionIndex];
+    this._turnFaction.mana += (this._turnFaction.workshops.length * 50);
+
 
     // ======================
     //   Units
     // ======================
+    // First turn - set unit passives
+    if (firstTurn) {
+      for (const unit of this._unitBank) {
+        unit.applyPassiveSkills(this);
+      }
+    }
+
     // Clear active units list
     this._activeUnits.length = 0;
     this._enemyList.length = 0;
@@ -752,7 +818,17 @@ class Map {
 
     // Non-Player turn - run AI
     else {
-      this.nextAIturn(true);
+      // Make the screen non-interactive
+      this._noClickTint.depth = 200;
+      this._isTurnTransition = true;
+
+      if (this._turnFaction.workshops.length > 0) {
+        this._turnFaction.runWorkshops(this, () => { this.nextAIturn(true); });
+      }
+      else {
+        this.nextAIturn(true);
+      }
+
     }
   }
 
@@ -762,9 +838,6 @@ class Map {
   //  isFirstUnit (I,OPT) - True if this is the first unit to move in the turn
   //---------------
   nextAIturn(isFirstUnit) {
-    // Make the screen non-interactive
-    this._noClickTint.depth = 200;
-    this._isTurnTransition = true;
 
     // Start with the first unit
     if (this._activeUnits.length > 0) {
@@ -948,7 +1021,7 @@ class Map {
     });
 
     // Start interactivity
-    this.setPlacementStart(startButton, startText, allUI, servantCam);
+    this.setPlacementStart(startButton, startText, allUI, servantCam, manaAmount);
 
 
     // ==============================
@@ -1028,7 +1101,7 @@ class Map {
   // ==============================
   //   Start Button
   // ==============================
-  setPlacementStart(startButton, startText, allUI, servantCam) {
+  setPlacementStart(startButton, startText, allUI, servantCam, manaAmount) {
     startButton.setInteractive();
 
     startButton.on('pointerdown', (pointer) => { if (!pointer.rightButtonDown()) {
@@ -1045,6 +1118,7 @@ class Map {
 
       if (!readyToStart) { return; }
       this._sounds.claim.play();
+      this._playerFactions[0].mana = parseInt(manaAmount.text);
 
       // Destroy UI and start game
       this._game.tweens.add({
@@ -1090,8 +1164,8 @@ class Map {
           otherSprite.on('pointerover', (pointer) => { otherSprite.tint = 0xbbbbbb; } );
           otherSprite.on('pointerout',  (pointer) => { otherSprite.tint = 0xffffff; } );
 
-          // Don't reselect same stile
-          if (this._placementTile.select = sprite) {
+          // Don't reselect same tile
+          if (this._placementTile.select == sprite) {
             this._placementTile = null;
             return;
           }
@@ -1125,7 +1199,7 @@ class Map {
         this._placementUnit = null;
 
         for (const sprite of otherServantUI) { sprite.tint = 0xffffff; sprite.alpha = 0.4; }
-        otherPortrait.on('pointerover', (pointer) => { for (const sprite of otherServantUI) { sprite.tint = 0xffffff; sprite.alpha = 0.4; } } );
+        otherPortrait.on('pointerover', (pointer) => { for (const sprite of otherServantUI) { sprite.tint = 0xbbbbbb; sprite.alpha = 0.9; } } );
         otherPortrait.on('pointerout',  (pointer) => { for (const sprite of otherServantUI) { sprite.tint = 0xffffff; sprite.alpha = 0.4; } } );
 
         // Spawn unit
@@ -1148,8 +1222,23 @@ class Map {
 
     portrait.on('pointerdown', (pointer) => { if (!pointer.rightButtonDown()) {
 
-      // Already deployed
-      if (portrait.alpha < 1) { return; }
+      // Already deployed - remove unit from placement
+      if (portrait.alpha < 1) {
+        this._sounds.cancel.play();
+
+        // Fix tiles
+        for (const sprite of servantUI) { sprite.tint = 0xffffff; sprite.alpha = 1; }
+        portrait.on('pointerover', (pointer) => { for (const sprite of servantUI) { sprite.tint = 0xbbbbbb; sprite.alpha = 1; } } );
+        portrait.on('pointerout',  (pointer) => { for (const sprite of servantUI) { sprite.tint = 0xffffff; sprite.alpha = 1; } } );
+
+        // Remove unit
+        this.killUnit(servant, true);
+
+        var amount = parseInt(manaAmount.text);
+        manaAmount.text = (amount + servant.cost);
+
+        return;
+      }
 
       // Cost too high
       var amount = parseInt(manaAmount.text);
@@ -1180,7 +1269,7 @@ class Map {
           otherPortrait.on('pointerout',  (pointer) => { for (const sprite of otherServantUI) { sprite.tint = 0xffffff; } } );
 
           // Don't reselect same unit
-          if (this._placementUnit.unit = servant) {
+          if (this._placementUnit.unit == servant) {
             this._placementUnit = null;
             return;
           }
@@ -1220,7 +1309,7 @@ class Map {
 
         // Fade out token
         for (const sprite of servantUI) { sprite.tint = 0xffffff; sprite.alpha = 0.4; }
-        portrait.on('pointerover', (pointer) => { for (const sprite of servantUI) { sprite.tint = 0xffffff; sprite.alpha = 0.4; } } );
+        portrait.on('pointerover', (pointer) => { for (const sprite of servantUI) { sprite.tint = 0xbbbbbb; sprite.alpha = 0.9; } } );
         portrait.on('pointerout',  (pointer) => { for (const sprite of servantUI) { sprite.tint = 0xffffff; sprite.alpha = 0.4; } } );
 
         // Spawn unit
@@ -1318,10 +1407,11 @@ class Map {
             if (current == "forest") {
               this.getTile(x, (y + sameCount - 1)).image = getForestTile(sameCount, "v");
 
-              curTile.bigImage = true;
-              if (sameCount > 2) { this.getTile(x, (y + 1)).bigImage = true; }
-              if (sameCount > 3) { this.getTile(x, (y + 2)).bigImage = true; }
-              continue;
+              this.getTile(x, y).bigImage = true;
+              this.getTile(x, (y + 1)).bigImage = true;
+              if (sameCount > 2) { this.getTile(x, (y + 2)).bigImage = true; }
+              if (sameCount > 3) { this.getTile(x, (y + 3)).bigImage = true; }
+              this.getTile(x, (y + sameCount - 1)).bigImage = false;
             }
             else {
               curTile.image = "mountain-" + sameCount + "-v";
@@ -1511,8 +1601,12 @@ class Map {
     if (y >= this._tiles.length) { return null; }
     if (x >= this._tiles[0].length) { return null; }
 
+    var tile = this._tiles[y][x];
+    tile.tileX = this.posX(x);
+    tile.tileY = this.posY(y);
+
     // This is backwards because x is horizontal, but the array starts vertically
-    return this._tiles[y][x];
+    return tile;
   }
 
   //---------------
@@ -1525,12 +1619,14 @@ class Map {
         var xPos = this._offsetX + (x * this._tileSize);
         var yPos = this._offsetY + (y * this._tileSize);
         var image = this.getTile(x, y).image;
+        var baseImage = this.getTile(x, y).baseImage;
 
         if (image == "ocean-4-nswe") { continue; }  // No base tile needed for full tiles
 
         // Add the base tile for
         var tileImage;
-        if (this._baseTile == "grass") { tileImage = getGrassTile(); }
+        if (baseImage) { tileImage = baseImage; }
+        else if (this._baseTile == "grass") { tileImage = getGrassTile(); }
         else { tileImage = this._baseTile; }
         this._game.add.image(xPos, yPos, tileImage).setOrigin(0, 0);
       }
@@ -1572,6 +1668,15 @@ class Map {
           tile.tileSprite = structImage;
           tile.tileX = this.posX(x);
           tile.tileY = this.posY(y);
+
+          // Workshops
+          if (this.isWorkshop(tile)) {
+            var faction = tile.faction;
+            if (faction) {
+              faction.addWorkshop(tile);
+            }
+          }
+
           continue;
         }
 
@@ -1746,7 +1851,7 @@ class Map {
     // Movement
     this._unitInfoBox.addTextToBox("Move", labelStyle, "labelMove", xLabel, 120, 0, 0, 1);
     this._unitInfoBox.addTextToBox("5", infoStyle, "valueMove", xValue, 120, 0, 0, 1);
-    this._unitInfoBox.addImageToBox("move-ground", "moveIcon", (xValue + 10), 118, 0, 0);
+    //this._unitInfoBox.addImageToBox("move-ground", "moveIcon", (xValue + 10), 118, 0, 0);
   }
 
   //---------------
@@ -1988,8 +2093,8 @@ class Map {
 
       this._unitInfoBox.getBoxElement("valueRange").setText(unit.attackRange);
       this._unitInfoBox.getBoxElement("valueMove").setText(unit.movement);
-      if (unit.moveType == moveTypeEnum.Flight) { this._unitInfoBox.getBoxElement("moveIcon").setTexture("move-flight"); }
-      else { this._unitInfoBox.getBoxElement("moveIcon").setTexture("move-ground"); }
+      // if (unit.moveType == moveTypeEnum.Flight) { this._unitInfoBox.getBoxElement("moveIcon").setTexture("move-flight"); }
+      // else { this._unitInfoBox.getBoxElement("moveIcon").setTexture("move-ground"); }
 
       // Skills
       if (unit._activeSkills.length > 0) {
@@ -2088,11 +2193,12 @@ class Map {
   //  structureHP (I,OPT) - HP the unit has if it is damagable (default: no HP)
   //  faction     (I,OPT) - Faction the structure belongs to
   //---------------
-  createStructure(xTile, yTile, image, groundCost, flightCost, groundDef, structureHP, faction) {
+  createStructure(xTile, yTile, image, groundCost, flightCost, groundDef, structureHP, faction, isClaimable, workshopUnits, cooldown) {
     var tile = this.getTile(xTile, yTile);
     if (tile.maxHP) { return; }   // Don't create where there's already a structure
 
-    var newImage = image + "-struct";
+    var newImage = image;
+    if (newImage.indexOf("-struct") == -1) { newImage += "-struct"; }
     tile.image = newImage;
 
     if (!this.tileSprite) {
@@ -2105,14 +2211,21 @@ class Map {
       tile.tileSprite.setTexture(newImage);
     }
 
+    tile.tileX = this.posX(xTile);
+    tile.tileY = this.posY(yTile);
     tile.groundMoveCost = groundCost;
     tile.flightMoveCost = flightCost;
     tile.groundDefense = groundDef || 2;
     tile.maxHP = structureHP || 100;
+    tile.curHP = tile.maxHP
+    tile.isClaimable = isClaimable;
+
     if (faction) {
       tile.isClaimable = true;
       this.claimStructure(tile, faction);
     }
+    if (workshopUnits) { tile.workshopUnits = [...workshopUnits]; }
+    if (cooldown) { tile._workshopCooldown = cooldown; }
   }
 
   //---------------
@@ -2126,6 +2239,11 @@ class Map {
   claimStructure(tile, faction, animation, callback) {
     if (tile.claim(faction)) {
       var image = tile.image.replace("-", "_" + this._factions.indexOf(faction) + "-");
+
+      // Workshops
+      if (this.isWorkshop(tile)) {
+        faction.addWorkshop(tile);
+      }
 
       if (!animation) {
         tile.image = image;
@@ -2233,15 +2351,39 @@ class Map {
         newImage = tile.image.substring(0, tile.image.indexOf("_")) + "-struct"
       }
 
+      // Workshops
+      if (this.isWorkshop(tile)) {
+        var faction = tile.faction;
+        if (faction) {
+          faction.removeWorkshop(tile);
+        }
+      }
+
       newImage = "ruins_" + newImage;
       tile.image = newImage;
       tile.groundDefense = 2;
+      tile.faction = null;
+      tile.isClaimable = false;
       tile.tileSprite.setTexture(newImage);
     }
 
     return isDestroyed;
   }
 
+  //---------------
+  // DESCRIPTION: Checks if a tile contains an active workshop
+  // PARAMS:
+  //  tile   (I,REQ) - Tile to check
+  // RETURNS: True if the structure is an active workshop; otherwise false
+  //---------------
+  isWorkshop(tile) {
+    if (!tile) { return false; }
+    var image = tile.image;
+
+    if (image.indexOf("workshop") == -1) { return false; }
+    if (image.indexOf("ruins") != -1) { return false; }
+    return true;
+  }
 
   // ====================================================================================
   //                                ZONES
@@ -2322,6 +2464,7 @@ class Map {
       }
     }
 
+    if (!shortestPoint) { return { x: toUnit.xTile, y: toUnit.yTile }; }
     return shortestPoint;
   }
 
@@ -2333,12 +2476,16 @@ class Map {
   // DESCRIPTION: Spawns all units in startUnits at the specified spots.
   //---------------
   spawnStartingUnits() {
-    // Do nothing if no units
-    if (this._startUnits.length == 0) { return; }
-
-    // Spawn each unit as specified
+    // Spawn starting units
     for (const unitObj of this._startUnits) {
       this.spawnUnit(unitObj.unit, unitObj.x, unitObj.y);
+    }
+
+    // Create starting structures
+    for (const structObj of this._startStructs) {
+      var struct = structObj.struct;
+      this.createStructure(structObj.x, structObj.y, struct.image, struct.groundMoveCost, struct.flightMoveCost,
+        struct.groundDefense, struct.structureHP, structObj.faction, struct.isClaimable, structObj.units, structObj.cooldown);
     }
   }
 
@@ -2393,7 +2540,6 @@ class Map {
       this._tempRange.length = 0;
     } });
     unit.normal();
-    unit.applyPassiveSkills(this);
   }
 
   //---------------
@@ -2614,6 +2760,27 @@ class Map {
   //  isTurnTransition (I,OPT) - If true, will cancel all even during a turn transition
   //---------------
   cancelAll(noSound, isTurnTransition) {
+    // Unit placement
+    if (this._placementTile) {
+      this._sounds.selectMenu.play();
+      var otherSprite = this._placementTile.select;
+      otherSprite.tint = 0xffffff;
+      otherSprite.on('pointerover', (pointer) => { otherSprite.tint = 0xbbbbbb; } );
+      otherSprite.on('pointerout',  (pointer) => { otherSprite.tint = 0xffffff; } );
+      this._placementTile = null;
+    }
+    if (this._placementUnit) {
+      this._sounds.selectMenu.play();
+      var otherPortrait = this._placementUnit.sprite;
+      var otherServantUI = this._placementUnit.spriteUI;
+      for (const sprite of otherServantUI) { sprite.tint = 0xffffff; }
+      otherPortrait.on('pointerover', (pointer) => { for (const sprite of otherServantUI) { sprite.tint = 0xbbbbbb; } } );
+      otherPortrait.on('pointerout',  (pointer) => { for (const sprite of otherServantUI) { sprite.tint = 0xffffff; } } );
+      this._placementUnit = null;
+    }
+    // --------------
+
+    // Normal Canceling
     if (this._unitInfo) { this._tileHover.setTexture("selection-cursor"); this._unitInfo = false; }
     if ((this._isTurnTransition) && (!isTurnTransition)) { return; }
 
@@ -2955,8 +3122,11 @@ class Map {
     if (tile.unit) { return; }
 
     // Attack structure if available
-    if (this._enemyList.includes(tile)) {
-      this.attack(tile);
+    if (this._attacker && this._enemyList.includes(tile)) {
+      if (this._attackNeedsMovement) { this.moveToAttack(tile); }
+      else if (this._usingTargetedSkill) { this.useTargetedSkill(this._usingTargetedSkill, tile); }
+      else if (this._usingTargetedNP) { this.useTargetedNP(this._usingTargetedNP, tile); }
+      else { this.attack(tile); }
       return;
     }
 
@@ -3015,6 +3185,47 @@ class Map {
 
         this._tileHover.setTexture("selection-cursor-q");
         this._unitInfo = true;
+      }
+    });
+
+    // Help
+    index = this.createActionOption("Help", this._optionMenu, this._optionText, xPos, yPos, depthMod);
+    yPos += 29;
+    depthMod++;
+
+    this._optionMenu[index].on('pointerdown', (pointer) => {
+      for (const sprite of this._optionMenu) { sprite.destroy(); }
+      this._optionMenu.length = 0;
+      for (const text of this._optionText) { text.destroy(); }
+      this._optionText.length = 0;
+      if (pointer.rightButtonDown()) { this.cancelAll(); }
+      if (!pointer.rightButtonDown()) {
+        this._sounds.select.play();
+        this.cancelAll(true);
+
+        var camIgnore = [];
+        camIgnore.push(this._tileInfoBox._baseSprite);
+        for (const box of this._tileInfoBox._boxUI) { camIgnore.push(box.sprite); }
+        camIgnore.push(this._unitInfoBox._baseSprite);
+        for (const box of this._unitInfoBox._boxUI) { camIgnore.push(box.sprite); }
+        camIgnore.push(this._playerInfoBox._baseSprite);
+        for (const box of this._playerInfoBox._boxUI) { camIgnore.push(box.sprite); }
+
+        var help = new HelpTips();
+        help.showHelpTips(this._game, this._sounds.selectMenu, () => {
+          this._tileHover.depth = 20;
+          this.isTurnTransition = false;
+          this._camera.centerOn(xPos, yPos);
+          controls.start();
+
+          this._noActionMenu = true;
+          this._game.time.delayedCall(100, () => { this._noActionMenu = false; });
+        }, camIgnore, true);
+
+        this._tileHover.depth = -5;
+        this.isTurnTransition = true;
+        this._camera.centerOn(this.posX(0), this.posY(0));
+        controls.stop();
       }
     });
 
@@ -3221,7 +3432,10 @@ class Map {
             if (unit.sprite.depth < 10) { unit.increaseDepth(10); }
 
             // Show avilable spaces
-            this.showEmptySpacesRange(unit, skill.range, skill);
+            this.showEmptySpacesRange(unit, skill.range, skill, null, () => {
+              skill.curTurn = skill.cooldown;
+              this.waitUnit(unit, true);
+            });
 
            }, "medium" );
         }
@@ -3337,8 +3551,35 @@ class Map {
           unit.removeStatus(unit.allStatuses[0]);   // NP ready should always be the first status
           noblePhantasm.effect(this, unit, [unit], this._sounds.npUse);
 
-          // End turn
-          // this.waitUnit(unit, true);
+         }, "medium" );
+      }
+
+      // ==============================
+      //   Space-targeting NPs
+      // ==============================
+      // Show attack range and use NP on enemy selection
+      else if (npType == npTypeEnum.Space)  {
+        popup.addButton("Use NP", null, () => {
+
+          // Remove menu
+          for (const sprite of this._optionMenu) { sprite.destroy(); }
+          this._optionMenu.length = 0;
+          for (const text of this._optionText) { text.destroy(); }
+          this._optionText.length = 0;
+
+          // Select unit
+          this._selectedUnit = unit;
+          if (unit.sprite.depth < 10) { unit.increaseDepth(10); }
+
+          // Show avilable spaces
+          this.showEmptySpacesRange(unit, noblePhantasm.range, noblePhantasm, this._sounds.npUse, () => {
+            unit.curCharge = 0;
+            unit.removeStatus(unit.allStatuses[0]);   // NP ready should always be the first status
+          });
+
+          // Remove NP (Space NPs are once per battle only)
+          unit.noblePhantasm = null;
+          unit._npChargeTime = -1;
 
          }, "medium" );
       }
@@ -3422,6 +3663,44 @@ class Map {
      }
 
      // ==============================
+     //   AoE All NPs
+     // ==============================
+     // Use NP on confirmation
+     else if (npType == npTypeEnum.AoEall) {
+       popup.addButton("Use NP", this._sounds.npStart, () => {
+
+         // Remove menu
+         for (const sprite of this._optionMenu) { sprite.destroy(); }
+         this._optionMenu.length = 0;
+         for (const text of this._optionText) { text.destroy(); }
+         this._optionText.length = 0;
+
+         // Select unit
+         this._selectedUnit = unit;
+         if (unit.sprite.depth < 10) { unit.increaseDepth(10); }
+
+         // Gather targets
+         var targets = [];
+         for (const bankUnit of this._unitBank) {
+           if (bankUnit.isEnemy(unit)) {
+             targets.push(bankUnit);
+           }
+         }
+
+         // Use the NP
+         this._attacker = unit;
+         unit.curCharge = 0;
+         unit.removeStatus(unit.allStatuses[0]);   // NP ready should always be the first status
+         noblePhantasm.effect(this, unit, targets);
+
+         // Remove NP (AoE ALl NPs are once per battle only)
+         unit.noblePhantasm = null;
+         unit._npChargeTime = -1;
+
+        }, "medium" );
+     }
+
+     // ==============================
      //   Single Target NPs
      // ==============================
      // Show attack range and use skill on enemy selection
@@ -3443,7 +3722,7 @@ class Map {
          this._enemyList.length = 0;
          this._usingTargetedNP = noblePhantasm;
 
-         this.checkEnemiesInRange(unit, this._enemyList, attackRange, unit.xTile, unit.yTile, noblePhantasm.range, 0, null, null, true);
+         this.checkEnemiesInRange(unit, this._enemyList, attackRange, unit.xTile, unit.yTile, noblePhantasm.range, 0);
          this.showAttackTargets(unit, this._enemyList, attackRange);
 
         }, "medium" );
@@ -3461,7 +3740,7 @@ class Map {
   //  range  (I,REQ) - Range of skill
   //  skill  (I,REQ) - Skill being used
   //---------------
-  showEmptySpacesRange(unit, range, skill) {
+  showEmptySpacesRange(unit, range, skill, sound, callback) {
     for (const select of this._aoeSelection) { select.destroy(); }
     this._aoeSelection.length = 0;
 
@@ -3473,7 +3752,7 @@ class Map {
 
     // Get range
     var spaceRange = [];
-    this.checkUnitRange(unit, spaceRange, unit.xTile, unit.yTile, range, 0);
+    this.checkUnitRange(unit, spaceRange, unit.xTile, unit.yTile, range, 0, null, null, null, true);
 
     // Show range
     var selection = [];
@@ -3489,7 +3768,7 @@ class Map {
       sprite.depth = 5;
 
       sprite.setInteractive( useHandCursor() );
-      this.setSpacePointerDown(sprite, unit, skill, x, y);
+      this.setSpacePointerDown(sprite, unit, skill, x, y, sound, callback);
       sprite.on('pointerover', function (pointer) { this.tint = 0xbbbbbb; } );
       sprite.on('pointerout',  function (pointer) { this.tint = 0xffffff; } );
 
@@ -3497,16 +3776,15 @@ class Map {
     }
     this._aoeSelection = selection;
   }
-  setSpacePointerDown(sprite, unit, skill, xTile, yTile) {
+  setSpacePointerDown(sprite, unit, skill, xTile, yTile, sound, callback) {
     sprite.on('pointerdown', (pointer) => { if (!pointer.rightButtonDown()) {
       for (const select of this._aoeSelection) { select.destroy(); }
       this._aoeSelection.length = 0;
 
-      this._sounds.skillUse.play();
-      skill.effect(this, unit, [{ x: xTile, y: yTile }]);
+      if (!sound) { sound = this._sounds.skillUse; }
+      skill.effect(this, unit, [{ x: xTile, y: yTile }], sound);
 
-      skill.curTurn = skill.cooldown;
-      this.waitUnit(unit, true);
+      if (callback) { callback(); }
     } });
   }
 
@@ -3771,17 +4049,24 @@ class Map {
     this._pauseTileHover = false;
 
     if (targetAllies) {
+      attackRange.push([unit.xTile, unit.yTile]);
+      enemies.push(unit);
       selectionSprite = "selection-green";
       depth = 15;
     }
 
     // Show attack range
+    var visited = [];
     var selection = [];
     for (var i = 0; i < attackRange.length; i++) {
       var x = attackRange[i][0];
       var y = attackRange[i][1];
       var xPos = this.posX(x);
       var yPos = this.posY(y);
+
+      var here = x + "-" + y;
+      if (visited.includes(here)) { continue; }
+      visited.push(here);
 
       var sprite = this._game.add.sprite(xPos, yPos, selectionSprite);
       sprite.setOrigin(0, 0);
@@ -3807,6 +4092,8 @@ class Map {
     sprite.on('pointerover', function (pointer) { sprite.tint = 0xaaaaaa; } );
     sprite.on('pointerout',  function (pointer) { sprite.tint = 0xffffff; } );
     sprite.on('pointerdown', (pointer) => { if (!pointer.rightButtonDown()) {
+      var tileTarget = tile.unit;
+
       if (tile.unit && (this._enemyList.includes(tile.unit))) {
         this.useTargetedSkill(this._usingTargetedSkill, tile.unit);
       }
@@ -3994,14 +4281,30 @@ class Map {
   //  noSound    (I,OPT) - If true, don't play sound
   //  noWait     (I,OPT) - If true, don't wait unit
   //  ignoreDef  (I,OPT) - If true, ignore defense buffs
+  // RETURNS: Amount of damage dealth
   //---------------
   attack(targetUnit, modifier, noSound, noWait, ignoreDef) {
     var attackingUnit = this._attacker;
-    if (!attackingUnit) { return; }
+    if (!attackingUnit) { return null; }
+    modifier = modifier || 1;
+
+    // Attacking units lose hidden status
+    var hiddenStatus = attackingUnit.getStatus("Presence Concealment");
+    if (hiddenStatus) {
+      // Increase attack for certain skills
+      var skill = attackingUnit.getActiveSkill("Murderer of the Misty Night")
+      if (skill) { modifier += 0.4; }
+
+      attackingUnit.alphaShow();
+      attackingUnit.removeStatus(hiddenStatus);
+    }
+    var disguiseStatus = attackingUnit.getStatus("Disguise");
+    if (disguiseStatus) { attackingUnit.removeStatus(disguiseStatus); }
 
     // Get damage amount
     var returnObj = { effective: effectiveEnum.Normal, blocked: false };
     var damage = this.damageCalc(attackingUnit, targetUnit, returnObj, null, modifier, ignoreDef);
+
 
     // Handle blocked attacks
     // - Block statuses that have strength are hit-based, so reduce hit count
@@ -4010,13 +4313,6 @@ class Map {
         targetUnit.blockStatus.strength--;
         if (targetUnit.blockStatus.strength < 1) { targetUnit.removeStatus(targetUnit.blockStatus); }
       }
-    }
-
-    // Attacking units lose hidden status
-    var hiddenStatus = attackingUnit.getStatus("Presence Concealment");
-    if (hiddenStatus) {
-      attackingUnit.alphaShow();
-      attackingUnit.removeStatus(hiddenStatus);
     }
 
     // Damage sound
@@ -4060,9 +4356,23 @@ class Map {
       this._usingTargetedSkill = null;
       this._usingTargetedNP = null;
 
+      // Fifth Form
+      var fifthForm = attackingUnit.getStatus("Fifth Form");
+      if (fifthForm && (modifier <= 1)) {
+        // Remove status and attack again
+        this._game.time.delayedCall(1000, () => {
+          attackingUnit.removeStatus(fifthForm);
+          attackingUnit.increaseNPCharge(2);
+          this.attack(targetUnit, modifier, noSound, noWait, ignoreDef);
+        });
+        return;
+      }
+
       // Attacking unit is done
       this.waitUnit(attackingUnit, true);
     }
+
+    return damage;
   }
 
   //---------------
@@ -4077,21 +4387,7 @@ class Map {
     var isDead = targetUnit.damage(damage, damageColor);
 
     if (isDead) {
-      var gutsStatus = targetUnit.getStatus("Guts");
-      if (gutsStatus) {
-        // Restore to 1/4th HP
-        targetUnit.curHP = Math.floor(targetUnit.maxHP / 4);
-        targetUnit.floatUnitText("Guts", colorPositive(), 500, 3, 500);
-
-        // Remove 1 Guts
-        if (gutsStatus.strength > 0) {
-          gutsStatus.strength--;
-          if (gutsStatus.strength < 1) { targetUnit.removeStatus(gutsStatus); }
-        }
-      }
-      else {
-        this.killUnit(targetUnit);
-      }
+      isDead = this.killUnit(targetUnit);
     }
 
     return isDead;
@@ -4295,18 +4591,43 @@ class Map {
   //---------------
   // DESCRIPTION: Removes a defeated unit and its sprites from the map
   // PARAMS:
-  //  unit (I,REQ) - Unit to kill
+  //  unit   (I,REQ) - Unit to kill
+  //  silent (I,OPT) - If true, no animation or sound
+  // RETURNS: True if unit died; otherwise false
   //---------------
-  killUnit(unit) {
+  killUnit(unit,silent) {
+
+    // Check Guts
+    if (!silent) {
+      var gutsStatus = unit.getStatus("Guts");
+      if (gutsStatus) {
+        // Restore to 1/4th HP
+        unit.curHP = Math.floor(unit.maxHP / 4);
+        unit.updateHP(unit.curHP);
+        unit.floatUnitText("Guts", colorPositive(), 500, 3, 500);
+
+        // Remove 1 Guts
+        if (gutsStatus.strength > 0) {
+          gutsStatus.strength--;
+          if (gutsStatus.strength < 1) { unit.removeStatus(gutsStatus); }
+        }
+
+        return false;
+      }
+    }
+
     // Remove from map
     this.removeUnit(unit);
     this.removeActiveUnit(unit);
     this.getTile(unit.xTile, unit.yTile).unit = null;
 
     // Destroy unit
+    unit.kill(silent);
+
+    if (silent) { return true; }
+
     this._sounds.death.play();
     this._noActionMenu = true;
-    unit.kill();
     this._game.time.delayedCall(100, () => { this._noActionMenu = false; });  // Prevent empty tile selection from triggering
 
     // Figure out if that was the last enemy of a faction
@@ -4342,6 +4663,8 @@ class Map {
         this.endGame();
       }
     }
+
+    return true;
   }
 
   //---------------
@@ -4847,9 +5170,10 @@ class Map {
     if (checkType == "attack") {
       var foundUnit = tile.unit;
 
-      // If this tile has a damageable structure not on the list, add it
-      // - Ignore allied structures
-      if ( (!unitsOnly) && (!foundUnit) && (tile.curHP > 0) && (!unit.faction.isAlly(tile.faction)) && (!enemies.includes(tile))) {
+
+      // If this tile has a damageable enemy structure not on the list, add it
+      if ( (!unitsOnly) && (!foundUnit) && (tile.curHP > 0) && tile.faction && (!unit.faction.isAlly(tile.faction))
+          && (!enemies.includes(tile))) {
         enemies.push(tile);
       }
 
@@ -4859,7 +5183,8 @@ class Map {
       if (!foundUnit) { isTarget = false; }
       else if (targetAllies && (foundUnit != unit)) { isTarget = !unit.isEnemy(foundUnit); }
       else { isTarget = unit.isEnemy(foundUnit); }
-      if (isTarget && !enemies.includes(foundUnit) && !foundUnit.hasStatus("Presence Concealment")) {
+      if (isTarget && !enemies.includes(foundUnit) && !foundUnit.hasStatus("Presence Concealment")
+          && !foundUnit.hasStatus("Disguise")) {
         enemies.push(foundUnit);
       }
 
@@ -4877,29 +5202,68 @@ class Map {
   //---------------
   // DESCRIPTION: Determines if a unit can land on a specific tile
   // PARAMS:
-  //  unit (I,REQ) - Unit to check
+  //  unit (I,OPT) - Unit to check
   //  tile (I,REQ) - Tile to check
   // RETURNS: True if movement to this tile is valid; otherwise 0
   //---------------
   isValidMoveTile(unit, tile) {
-    // Blocked off tiles
-    if ((unit.moveType == moveTypeEnum.Ground) && (tile.groundMoveCost == -1)) { return false; }
-    if ((unit.moveType == moveTypeEnum.Flight) && (tile.flightMoveCost == -1)) { return false; }
+    if (unit) {
+      // Blocked off tiles
+      if ((unit.moveType == moveTypeEnum.Ground) && (tile.groundMoveCost == -1)) { return false; }
+      if ((unit.moveType == moveTypeEnum.Flight) && (tile.flightMoveCost == -1)) { return false; }
 
-    // Enemy on tile
-    var unitFaction = unit.faction;
-    if (tile.unit && !unit.hasPassiveSkill("Shadow") && !unit.hasPassiveSkill("Teleportation")) {
-      var otherFaction = tile.unit.faction;
-      if (!unitFaction.isAlly(otherFaction)) { return false; }
+      // Enemy on tile
+      var unitFaction = unit.faction;
+      if (tile.unit && !unit.hasPassiveSkill("Shadow") && !unit.hasPassiveSkill("Teleportation")) {
+        var otherFaction = tile.unit.faction;
+        if (!unitFaction.isAlly(otherFaction)) { return false; }
+      }
+
+      // Enemy Structure on tile
+      if (tile.maxHP && tile.faction) {
+        var otherFaction = tile.faction;
+        if (!unitFaction.isAlly(otherFaction)) { return false; }
+      }
     }
-
-    // Enemy Structure on tile
-    if (tile.maxHP && tile.faction) {
-      var otherFaction = tile.faction;
-      if (!unitFaction.isAlly(otherFaction)) { return false; }
+    else {
+      // Not unit/faction specific
+      if (tile.groundMoveCost == -1) { return false; }
+      if (tile.unit) { return false; }
+      if (tile.faction) { return false; }
     }
 
     return true;
+  }
+
+  //---------------
+  // DESCRIPTION: Checks the 4 directions adjacent to a tile and returns
+  //               the ones that are empty and can support units.
+  // PARAMS:
+  //  tile (I,REQ) - Tile to check
+  // RETURNS: 2D array of available nearby spaces
+  //---------------
+  nearbySpaces(tile) {
+    if (!tile) { return null; }
+    var xTile = tile.xTile;
+    var yTile = tile.yTile;
+    var spaces = [];
+
+    var directions = [
+      this.getTile((xTile + 1), (yTile)),
+      this.getTile((xTile - 1), (yTile)),
+      this.getTile((xTile), (yTile + 1)),
+      this.getTile((xTile), (yTile - 1)),
+    ];
+
+    for (const dir of directions) {
+      if (this.isValidMoveTile(null, dir)) {
+        var x = this.tileX(dir.tileX);
+        var y = this.tileY(dir.tileY);
+        spaces.push([ x, y ]);
+      }
+    }
+
+    return spaces;
   }
 
   //---------------

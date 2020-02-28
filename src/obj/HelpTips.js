@@ -102,6 +102,9 @@ class HelpTips {
     this.helpTipsTerrain(game, depth, xyCoord);
     mapCamera.setBounds(cameraX, cameraY, cameraWidth, (xyCoord.y - cameraY));
 
+    this.helpTipsCredits(game, depth, xyCoord);
+    mapCamera.setBounds(cameraX, cameraY, cameraWidth, (xyCoord.y - cameraY));
+
 
     // Fade in
     game.tweens.add({
@@ -317,6 +320,15 @@ class HelpTips {
     yPos += Math.max(label.displayHeight, text.displayHeight);
     yPos += 16;
 
+    // Tab
+    label = this.helpTipsAddText(game, "Tab", depth, xLabel, yPos, valueFill, 2);
+    text = this.helpTipsAddText(game, [
+      "Scroll battle map to next active unit",
+    ], depth, xValue, yPos, labelFill, 2, 16);
+    text.setWordWrapWidth(395);
+    yPos += Math.max(label.displayHeight, text.displayHeight);
+    yPos += 16;
+
     // ----------
 
     this.helpTipsAddSection(game, "Controls", depth, xyCoord, yPos);
@@ -355,6 +367,9 @@ class HelpTips {
       { name: "Fortress", tileObj: Fortress(), info: ["Defensive structure that can be claimed by units when they end their turn on the Fortress.",
                "Once claimed, enemies cannot pass through the Fortress or claim it themselves.",
                "When destroyed, turns into Ruins that provide less defense and do not block enemies."] },
+      { name: "Workshop", tileObj: Workshop(), info: ["A magic workshop that is able to spawn non-Servant units by constructing them or summoning them to the battlefield.",
+              "Mana is needed to spawn units, and generates at a rate of 50 mana per workshop each turn.",
+              "When destroyed, turns into Ruins that is unable to spawn units."] },
       { name: "Ruins",    tileObj: RuinsLeyLine(), info: ["Ruins of a structure that was destroyed.",
                "Provides some defense, but has no other special behavior."] },
     ];
@@ -367,6 +382,7 @@ class HelpTips {
 
       // Image
       var image = tileObj.image;
+      if (image.indexOf("-") != -1) { image = image.substr(0, image.indexOf("-")); }
       if (tileObj.overImage) { image = tileObj.overImage; }
       var icon = this.helpTipsAddImage(game, image, depth, xIcon, yPos, 0, 0);
 
@@ -408,6 +424,117 @@ class HelpTips {
     // ----------
 
     this.helpTipsAddSection(game, "Terrain", depth, xyCoord, yPos);
+  }
+
+  // DESCRIPTION: Shows game credits
+  //---------------
+  helpTipsCredits(game, depth, xyCoord) {
+    var xPos = xyCoord.x + 25;
+    var yPos = xyCoord.y + 40;
+
+    var labelFill = "#c1c1c1";
+    var valueFill = "#fff";
+
+    var title, text, etc;
+
+    // ----------
+
+    // FGO
+    title = this.helpTipsAddText(game, "Fate/Grand Order", depth, xPos, yPos, valueFill, 2);
+    title.setWordWrapWidth(520);
+    yPos += 25;
+
+    text = this.helpTipsAddText(game, [
+      "Inspiration, characters, UI, music, sounds, and other assets",
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    text.setWordWrapWidth(520);
+    yPos += text.displayHeight + 8;
+
+    etc = this.helpTipsAddText(game, [
+      "https://www.fate-go.jp/",
+      "https://fate-go.us/"
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    etc.setWordWrapWidth(520);
+    yPos += etc.displayHeight + 25;
+
+    // Advance Wars
+    title = this.helpTipsAddText(game, "Advance Wars Series", depth, xPos, yPos, valueFill, 2);
+    title.setWordWrapWidth(520);
+    yPos += 25;
+    title = this.helpTipsAddText(game, "Wargroove", depth, xPos, yPos, valueFill, 2);
+    title.setWordWrapWidth(520);
+    yPos += 25;
+
+    text = this.helpTipsAddText(game, [
+      "Gameplay inspiration, tiles, sounds, and other assets",
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    text.setWordWrapWidth(520);
+    yPos += text.displayHeight + 8;
+
+    etc = this.helpTipsAddText(game, [
+      "https://wargroove.com/",
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    etc.setWordWrapWidth(520);
+    yPos += etc.displayHeight + 25;
+
+    // Wiki
+    title = this.helpTipsAddText(game, "Fate/Grand Order Wikia", depth, xPos, yPos, valueFill, 2);
+    title.setWordWrapWidth(520);
+    yPos += 25;
+
+    text = this.helpTipsAddText(game, [
+      "Servant Info, Servant Dialogue, and Status Effect icons",
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    text.setWordWrapWidth(520);
+    yPos += text.displayHeight + 8;
+
+    etc = this.helpTipsAddText(game, [
+      "https://fategrandorder.fandom.com",
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    etc.setWordWrapWidth(520);
+    yPos += etc.displayHeight + 25;
+
+    // Cursor
+    title = this.helpTipsAddText(game, "Sirea", depth, xPos, yPos, valueFill, 2);
+    title.setWordWrapWidth(520);
+    yPos += 25;
+
+    text = this.helpTipsAddText(game, [
+      "Game Cursor",
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    text.setWordWrapWidth(520);
+    yPos += text.displayHeight + 8;
+
+    etc = this.helpTipsAddText(game, [
+      "http://www.rw-designer.com/user/5920",
+      "http://www.rw-designer.com/cursor-set/mass-effect-3",
+      "m.smejkalova@gmail.com",
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    etc.setWordWrapWidth(520);
+    yPos += etc.displayHeight + 25;
+
+    // Dev
+    title = this.helpTipsAddText(game, "Development", depth, xPos, yPos, valueFill, 2);
+    title.setWordWrapWidth(520);
+    yPos += 25;
+
+    text = this.helpTipsAddText(game, [
+      "Developed by Styx",
+      "https://github.com/Styx5066"
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    text.setWordWrapWidth(520);
+    yPos += text.displayHeight + 15;
+
+    etc = this.helpTipsAddText(game, [
+      "Created with Phaser 3",
+      "https://phaser.io/phaser3",
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    etc.setWordWrapWidth(520);
+    yPos += etc.displayHeight + 25;
+
+    // ----------
+
+    this.helpTipsAddSection(game, "Credits", depth, xyCoord, yPos);
   }
 
 }

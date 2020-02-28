@@ -17,6 +17,7 @@ V = BridgeOverRiver();
 L = LeyLine();
 U = RuinsLeyLine();
 T = Fortress();
+K = Workshop();
 
 // ==========================================================
 function Grass() {
@@ -263,11 +264,33 @@ function RuinsLeyLine() {
 // ==========================================================
 
 // ==========================================================
-function Fortress() {
+function Fortress(faction) {
   var image = "fortress-struct";
   var groundMoveCost = 1;
   var flightMoveCost = 1;
   var groundDefense  = 4;
+  var structureHP = 100;
+
+  // ---------------
+  return new Tile(
+    image,             // Tile image
+    groundMoveCost,    // Move cost for ground units
+    flightMoveCost,    // Move cost for flying units
+    groundDefense,     // Defense modifier for ground units
+    null,
+    structureHP,       // Structure HP
+    true,              // Is Claimable?
+    null               // Faction
+  );
+}
+// ==========================================================
+
+// ==========================================================
+function Workshop() {
+  var image = "workshop-struct";
+  var groundMoveCost = 1;
+  var flightMoveCost = 1;
+  var groundDefense  = 2;
   var structureHP = 100;
 
   // ---------------

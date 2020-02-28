@@ -20,6 +20,7 @@
     <script src="src/servant-list.js"></script>
     <script src="src/summon.js"></script>
     <script src="src/battle.js"></script>
+    <script src="src/options.js"></script>
     <script src="src/map-editor.js"></script>
 
     <!-- Classes -->
@@ -260,6 +261,31 @@
     }
 
     //---------------
+    // SCENE: Options Menu
+    //---------------
+    class OptionsScene extends Phaser.Scene {
+        constructor() {
+          super('OptionsScene');
+          this._playerData;
+          this._music;
+        }
+
+        init(data) {
+          this._playerData = data.playerData;
+          this._music = data.music;
+        }
+
+        preload() {
+          preloadOptions(this);
+        }
+
+        create() {
+          loadCursor();
+          createOptions(this);
+        }
+    }
+
+    //---------------
     // SCENE: Map Editor
     //---------------
     class MapEditorScene extends Phaser.Scene {
@@ -292,7 +318,8 @@
         width: 1024,
         height: 626,
         title: "Fate/Grand Wars",
-        scene: [ MenuScene, IntroScene, GameMenuScene, BattleSimScene, ServantListScene, SummonScene, BattleScene, MapEditorScene ]
+        scene: [ MenuScene, IntroScene, GameMenuScene, BattleSimScene, ServantListScene, SummonScene,
+                 BattleScene, OptionsScene, MapEditorScene ]
     };
 
     var game = new Phaser.Game(config);

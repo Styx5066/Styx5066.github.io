@@ -26,7 +26,7 @@ function CursedArmHassan(game, faction) {
   var activeSkills = [
     new Skill("Protection from Wind", "skill-Evasion",
               skillTypeEnum.Self, "skillEvasionAtk", servantCooldown(7), 0,
-              ["Grants self Evasion for 3 attacks."]),
+              ["Grants self Evasion for 2 attacks."]),
     new Skill("Presence Concealment", "skill-Presence Concealment",
               skillTypeEnum.Self, "skillPresenceConcealment", servantCooldown(9), 0,
               ["Hides self from enemies for 3 turns or until you attack."]),
@@ -122,6 +122,151 @@ function HundredHassan(game, faction) {
     npTypeEnum.Single, "npZabaniya", npStrengthSingle(), 1,
     ["Deals 300% damage to one enemy. 5% chance to Instant-Kill them.",
      "Range: 1 adjacent enemy."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
+function JacktheRipper(game, faction) {
+  // Basic info
+  var name = "Jack the Ripper";
+  var load = "JacktheRipper";
+  var unitClass = classEnum.Assassin;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [ "Humanoid", "Female", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = ["Assassin - Jack the Ripper. Please take care of me, Mother."];
+
+  // Stats
+  var maxHP = servantHP(12696);
+  var attack = servantAtk(11557);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Murderer of the Misty Night", "skill-Presence Concealment",
+              skillTypeEnum.Self, "skillMist", servantCooldown(9), 0,
+              ["Hides self from enemies for 3 turns or until you attack.",
+               "When attacking while hidden, attack increases by 40%."]),
+    new Skill("Information Erasure", "skill-Assault",
+             skillTypeEnum.Enemy, "skillErasure", servantCooldown(7), 1,
+             ["Removes one enemy's buffs and reduces their attack by 15% for 3 turns."]),
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Shadow", "skill-Shadow",
+              skillTypeEnum.Passive, "skillManual", 0, 0,
+              "Able to pass through enemies."),
+    new Skill("Mental Pollution", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResLow", 0, 0,
+              "Increases own debuff resistance by 10%."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Maria the Ripper", "The Holy Mother of Dismemberment",
+    npTypeEnum.Single, "npJack", npStrengthSingle(), 1,
+    ["Deals 300% damage that ignores defense buffs to one enemy. Deals an extra 50% damage to Female enemies.",
+     "Range: 1 adjacent enemy."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
+function MataHari(game, faction) {
+  // Basic info
+  var name = "Mata Hari";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Assassin;
+  var image = name;
+  var rank = rankEnum.Bronze;
+  var traits = [ "Humanoid", "Female", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = ["Servant, Assassin. I go by the name of Mata Hari. Nice to meet you."];
+
+  // Stats
+  var maxHP = servantHP(6565);
+  var attack = servantAtk(5377);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Pheromone", "skill-Charm",
+              skillTypeEnum.AoEburst, "skillPheromone", servantCooldown(8), 1,
+              ["60% chance to charm male enemies in range for 1 turn.",
+               "Reduces defense of enemies in range by 10% for 3 turns. Seals their skills for 1 turn."]),
+    new Skill("Espionage", "skill-Shadow",
+              skillTypeEnum.Self, "skillDisguise", servantCooldown(8), 0,
+              ["Disguises self from enemies for 3 turns or until you attack."])
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Shadow", "skill-Shadow",
+              skillTypeEnum.Passive, "skillManual", 0, 0,
+              "Able to pass through enemies."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Mata Hari", "The Girl Who Has Sunny Eyes",
+    npTypeEnum.AoEburst, "npMataHari", 0, 1,
+    ["60% chance to charm enemies in range for 1 turn.",
+     "Reduces their attack and defense by 20% for 3 turns."]);
   var npChargeTime;
 
   // ---------------

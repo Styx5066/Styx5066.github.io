@@ -157,18 +157,27 @@ function preloadMapTiles(game) {
   game.load.image(image + "-struct", "assets/tiles/structures/" + image + "-struct.png");
   game.load.image(image, "assets/tiles/structures/" + image + ".png");
 
-  image = "fortress"
-  game.load.image(image + "-struct", "assets/tiles/structures/" + image + "-struct.png");
-  game.load.image(image, "assets/tiles/structures/" + image + ".png");
-  for (var i = 0; i < 4; i++) {
-    image = "fortress_" + i
+
+  // ==============================
+  //   Claimable Structures
+  // ==============================
+  var claimables = ["fortress", "workshop"];
+
+  for (const struct of claimables) {
+    image = struct;
+    game.load.image(image + "-struct", "assets/tiles/structures/" + image + "-struct.png");
+    game.load.image(image, "assets/tiles/structures/" + image + ".png");
+
+    for (var i = 0; i < 4; i++) {
+      image = struct + "_" + i
+      game.load.image(image + "-struct", "assets/tiles/structures/" + image + "-struct.png");
+      game.load.image(image, "assets/tiles/structures/" + image + ".png");
+    }
+
+    image = "ruins_" + struct;
     game.load.image(image + "-struct", "assets/tiles/structures/" + image + "-struct.png");
     game.load.image(image, "assets/tiles/structures/" + image + ".png");
   }
-
-  image = "ruins_fortress"
-  game.load.image(image + "-struct", "assets/tiles/structures/" + image + "-struct.png");
-  game.load.image(image, "assets/tiles/structures/" + image + ".png");
 
 }
 
@@ -207,6 +216,7 @@ function preloadUI(game) {
   game.load.image("button-medium", "assets/ui/button-medium.png");
   game.load.image("button-large", "assets/ui/button-large.png");
   game.load.image("button-continue", "assets/ui/button-continue.png");
+  game.load.image("button-continue-red", "assets/ui/button-continue-red.png");
 
 
   game.load.image("QP", "assets/ui/QP.png");
@@ -328,26 +338,34 @@ function preloadSkills(game) {
   game.load.image("skill-frame", "assets/ui/skill-frame.png");
 
   var allSkills = [
+    "Assault",
     "Attack Up",
+    "Body",
     "Charm",
     "Courage",
     "Damage Up",
     "Death Chance Up",
     "Debuff Immunity",
+    "Debuff Resistance Up",
     "Defense Down",
     "Defense Up",
     "Divinity",
     "Evasion",
+    "Fifth Form",
     "Guts",
     "Heal",
     "Item Construction",
+    "Invincible",
     "Loveliness",
     "Mad Enhancement",
     "Magic Resistance",
     "Moon",
     "None",
     "NP Charge",
+    "NP Damage Up",
+    "NP Generation",
     "NP Regen",
+    "Pierce Invincible",
     "Poison",
     "Presence Concealment",
     "Regen",
@@ -358,6 +376,7 @@ function preloadSkills(game) {
     "Sure Hit",
     "Taunt",
     "Territory Creation",
+    "Travel",
     "Yin Yang",
   ];
 
@@ -376,22 +395,29 @@ function preloadStatus(game) {
     "Attack Down",
     "Burn",
     "Charm",
+    "Class Change",
     "Curse",
     "Damage Cut",
     "Damage Up",
     "Death Chance Up",
+    "Debuff Immunity",
     "Debuff Resistance Down",
     "Debuff Resistance Up",
     "Debuff Success Up",
     "Defense Down",
     "Defense Up",
     "Evade",
+    "Fifth Form",
     "Guts",
     "HP Regen",
+    "Invincible",
     "None",
     "NP Charge Up",
+    "NP Damage Up",
     "NP Ready",
     "NP Seal",
+    "Pierce Invincible",
+    "Pig",
     "Poison",
     "Presence Concealment",
     "Skill Seal",

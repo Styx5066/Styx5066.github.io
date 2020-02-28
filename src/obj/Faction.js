@@ -18,6 +18,9 @@ class Faction {
     this._color = color || "#fff";
 
     this._allies = [];
+
+    this._mana = 0;
+    this._workshops = [];
   }
 
   // Faction name
@@ -38,6 +41,16 @@ class Faction {
 
   // Faction allies
   get allies() { return this._allies; }
+
+  // Mana amount
+  get mana() { return this._mana; }
+  set mana(x) { this._mana = x; }
+
+  // Workshops (array of tiles)
+  addWorkshop(struct) { addElement(struct, this._workshops); }
+  removeWorkshop(struct) { removeElement(struct, this._workshops); }
+  get workshops() { return this._workshops; }
+
 
   //---------------
   // DESCRIPTION: Adds another faction as allies of this one.
@@ -117,4 +130,105 @@ class Faction {
   toString() {
     return this._name;
   }
+
+  //---------------
+  // DESCRIPTION: Performs actions for faction's workshops
+  // PARAMS:
+  //  map      (I,REQ) - Map object
+  //  callback (I,OPT) - Callback once workshops are done
+  //---------------
+  runWorkshops(map, callback) {
+    // No workshops
+    if (this._workshops.length == 0) {
+      if (callback) { callback(); }
+      return;
+    }
+
+    // Start with first workshop
+    this.nextWorkshop(map, 0, callback);
+  }
+
+  //---------------
+  // DESCRIPTION: Performs actions for faction's workshops
+  // PARAMS:
+  //  map      (I,REQ) - Map object
+  //  idx      (I,REQ) - Index of workshop to run
+  //  callback (I,OPT) - Callback once workshops are done
+  //---------------
+  nextWorkshop(map, idx, callback) {
+    // No more workshops
+    if (idx >= this._workshops.length) {
+      if (callback) { callback(); }
+      return;
+    }
+
+    // Cooldown
+    var workshop = this._workshops[idx];
+    if (workshop._workshopCooldown > 0) {
+      if (workshop._workshopTurn > 0) {
+        workshop._workshopTurn--;
+        this.nextWorkshop(map, (idx + 1), callback);
+        return;
+      }
+    }
+
+    // Check for units to spawn
+    var avail = workshop.availWorkshopUnits(this._mana);
+    var spaces = map.nearbySpaces(workshop);
+
+    if ((avail.length == 0) || (spaces.length == 0)) {
+      this.nextWorkshop(map, (idx + 1), callback);
+      return;
+    }
+
+
+    // Find the highest-cost units available
+    var maxCost = 0;
+    var bestUnits = [];
+    for (const workshopUnit of avail) {
+      if (workshopUnit.cost > maxCost) {
+        maxCost = workshopUnit.cost;
+      }
+    }
+    for (const workshopUnit of avail) {
+      if (workshopUnit.cost == maxCost) {
+        bestUnits.push(workshopUnit);
+      }
+    }
+
+    // Choose one of the units
+    var rand = getRandomInt(0, bestUnits.length);
+    var workshopUnit = bestUnits[rand];
+
+    rand = getRandomInt(0, workshopUnit.classes.length)
+    var unitClass = workshopUnit.classes[rand];
+    var unit = window[workshopUnit.load](map._game, this, unitClass);
+
+    if (workshop._workshopCooldown > 0) {
+      workshop._workshopTurn = workshop._workshopCooldown;
+    }
+
+
+    // Pan to the tile
+    map._game.time.delayedCall(300, () => {
+
+      var camX = workshop.tileX;
+      var camY = workshop.tileY;
+      map._camera.pan(camX, camY, 250, "Linear");
+
+      map._game.time.delayedCall(250, () => {
+
+        // Spawn the unit
+        this._mana -= maxCost;
+        rand = getRandomInt(0, spaces.length);
+        map.spawnUnit(unit, spaces[rand][0], spaces[rand][1]);
+        unit.darken();
+
+        map._game.time.delayedCall(250, () => { this.nextWorkshop(map, (idx + 1), callback); });
+
+      });
+
+    });
+  }
+
 }

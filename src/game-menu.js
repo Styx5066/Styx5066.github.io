@@ -40,9 +40,10 @@ function preloadGameMenu(game) {
   for (const base of bases) {
     game.load.image(base, "assets/tiles/" + base + "/base.png");
   }
-  game.load.image("leyline-struct", "assets/tiles/structures/" + "leyline" + ".png");
-  game.load.image("ruins_leyline-struct", "assets/tiles/structures/" + "ruins_leyline" + ".png");
-  game.load.image("fortress-struct", "assets/tiles/structures/" + "fortress" + ".png");
+  game.load.image("leyline", "assets/tiles/structures/" + "leyline" + ".png");
+  game.load.image("ruins_leyline", "assets/tiles/structures/" + "ruins_leyline" + ".png");
+  game.load.image("fortress", "assets/tiles/structures/" + "fortress" + ".png");
+  game.load.image("workshop", "assets/tiles/structures/" + "workshop" + ".png");
 }
 
 //---------------
@@ -117,7 +118,8 @@ function createGameMenu(game) {
   var battleSimActive = true;
   var servantListActive = true;
   var summonActive = true;
-  var optionsActive = false;
+  var optionsActive = true;
+
   if (playerData.servants.length == 0) {
     storyActive = false;
     battleSimActive = false;
@@ -158,7 +160,9 @@ function createGameMenu(game) {
   // Options
   x += modX;
   y += modY + button.displayHeight;
-  createGameButton(game, "Options", x, y, () => {  }, sounds.select, !optionsActive);
+  createGameButton(game, "Options", x, y, () => {
+    game.scene.start('OptionsScene', { playerData: playerData, music: music });
+  }, sounds.select, !optionsActive);
 
   // Help
   createGameButton(game, null, 21, 519, () => {
