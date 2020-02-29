@@ -14,7 +14,7 @@ function getBattleSimMaps() {
 
     { name: "Archer Row",       load: "ArcherVolleys", image: "Arash-Portrait",      diff: 1 },
     { name: "Assassination",    load: "Assassination", image: "Cursed Arm Hassan-Portrait", diff: 1 },
-    { name: "Castle of Snow",   load: "CastleOfSnow",  image: "Heracles-Portrait",   diff: 2 },
+    { name: "Castle of Snow",   load: "CastleOfSnow",  image: "Heracles-Portrait",   diff: 2, theme: "snow"},
 
     { name: "Piglet Island",    load: "PigletIsland",  image: "Pig-Portrait",        diff: 2 },
     { name: "Failed Experiments", load: "FailedExperiments",  image: "Chimera-Portrait", diff: 2 },
@@ -166,7 +166,7 @@ function showBattleSimMaps(game, sounds, music, playerData) {
 
     // Add the map button
     var buttonUI = createMapButton(game, mapObj, buttonX, buttonY, () => {
-      loadMap(game, mapObj.load, music, playerData) ;
+      loadMap(game, mapObj.load, music, playerData, mapObj.theme) ;
     }, sounds.select, 0, clearsLeft);
 
     // Fade in
@@ -331,9 +331,9 @@ function createMapButton(game, mapObj, x, y, action, sound, alpha, clearsLeft) {
 //  map   (I,REQ) - Map to load
 //  music (I,REQ) - Music to stop playing
 //---------------
-function loadMap(game, map, music, playerData) {
+function loadMap(game, map, music, playerData, theme) {
   if (map) {
     music.stop();
-    game.scene.start('BattleScene', { map: map, playerData: playerData });
+    game.scene.start('BattleScene', { map: map, playerData: playerData, theme: theme });
   }
 }

@@ -13,7 +13,7 @@ function devMode() {
 // DESCRIPTION: Determines whether dev options appear
 //---------------
 function version() {
-  return "0.1.11a";
+  return "0.1.11b";
 }
 
 // ------------------------------------------------------
@@ -306,6 +306,17 @@ function removeElement(element, array) {
     if (array[i] == element) { index = i; break; }
   }
   array.splice(index, 1);
+}
+
+//---------------
+// DESCRIPTION: Removes preloaded textures if already loaded
+// PARAMS:
+//  key (I,REQ) - Texture key to remove
+//---------------
+function removeTexture(game, key) {
+  if (game.textures.get(key).key != "__MISSING") {
+    game.textures.remove(key);
+  }
 }
 
 //---------------

@@ -35,15 +35,22 @@ function preloadGameMenu(game) {
   game.load.image("class-effectiveness", "assets/ui/class-effectiveness.png");
   game.load.image("Bella_fr-glasses", "assets/chara/Bella/Bella_fr-glasses.png");
 
+
+  // Tiles
   var bases = ["grass", "forest", "mountain", "ocean", "path",
    "wall", "river", "bridge", "stone"];
   for (const base of bases) {
-    game.load.image(base, "assets/tiles/" + base + "/base.png");
+    removeTexture(game, base);
+    game.load.image(base, "assets/tiles/plains/" + base + "/base.png");
   }
-  game.load.image("leyline", "assets/tiles/structures/" + "leyline" + ".png");
-  game.load.image("ruins_leyline", "assets/tiles/structures/" + "ruins_leyline" + ".png");
-  game.load.image("fortress", "assets/tiles/structures/" + "fortress" + ".png");
-  game.load.image("workshop", "assets/tiles/structures/" + "workshop" + ".png");
+  removeTexture(game, "leyline");
+  game.load.image("leyline", "assets/tiles/plains/structures/" + "leyline" + ".png");
+  removeTexture(game, "ruins_leyline");
+  game.load.image("ruins_leyline", "assets/tiles/plains/structures/" + "ruins_leyline" + ".png");
+  removeTexture(game, "fortress");
+  game.load.image("fortress", "assets/tiles/plains/structures/" + "fortress" + ".png");
+  removeTexture(game, "workshop");
+  game.load.image("workshop", "assets/tiles/plains/structures/" + "workshop" + ".png");
 }
 
 //---------------

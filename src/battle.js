@@ -9,7 +9,9 @@
 //---------------
 function preloadBattle(game) {
   // Split up into separate functions
-  preloadMapTiles(game);
+  preloadMapTiles(game, game._theme, game._lastTheme);
+  game._lastTheme = game._theme;
+
   preloadUI(game);
   preloadTokenUI(game);
   preloadClassIcons(game);
