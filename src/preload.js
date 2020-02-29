@@ -3,6 +3,195 @@
 */
 
 //---------------
+// DESCRIPTION: Loads map tiles
+//---------------
+function preloadMapTiles(game, theme, lastTheme) {
+
+  // Unload images if necessary
+  theme = theme || "plains";
+  lastTheme = lastTheme || "plains";
+  if (theme != lastTheme) {
+    unloadMapTiles(game);
+  }
+
+
+  var image;
+  var directions = [
+    { num: 1, dir: ["n", "s", "w", "e"] },
+    { num: 2, dir: ["ne", "ns", "nw", "se", "we", "sw"] },
+    { num: 3, dir: ["nse", "nsw", "nwe", "swe"] },
+    { num: 4, dir: ["nswe"] },
+  ];
+  var directionsC = ["nw", "ne", "sw", "se"];
+
+
+  // ==============================
+  //   Base tile images
+  // ==============================
+  var bases = ["grass", "forest", "mountain", "ocean", "path",
+   "wall", "river", "bridge", "stone"];
+  for (const base of bases) {
+    game.load.image(base, "assets/tiles/" + theme + "/" + base + "/base.png");
+  }
+  // ==============================
+  //   Grass
+  // ==============================
+  for (var i = 0; i < 13; i++) {
+    image = "grass-" + i;
+    game.load.image(image, "assets/tiles/" + theme + "/grass/" + image + ".png");
+  }
+
+  // ==============================
+  //   Forest
+  // ==============================
+  image = "forest-1-0";
+  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
+  image = "forest-1-1";
+  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
+  image = "forest-1-2";
+  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
+
+  image = "forest-2-h-0";
+  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
+  image = "forest-2-h-1";
+  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
+
+  image = "forest-2-v-0";
+  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
+  image = "forest-2-v-1";
+  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
+
+  image = "forest-3-h";
+  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
+  image = "forest-3-v";
+  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
+
+  // ==============================
+  //   Mountain
+  // ==============================
+  image = "mountain-1";
+  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
+
+  image = "mountain-2-h";
+  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
+  image = "mountain-2-v";
+  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
+
+  image = "mountain-3-h";
+  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
+  image = "mountain-3-v";
+  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
+
+  image = "mountain-4-h";
+  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
+  image = "mountain-4-v";
+  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
+
+  // ==============================
+  //   Directional
+  // ==============================
+  var directional = [
+    "ocean",
+    "path",
+    "wall",
+    "river",
+    "stone",
+  ];
+  for (const baseImage of directional) {
+    // 0
+    image = baseImage + "-0-";
+    game.load.image(image, "assets/tiles/" + theme + "/" + baseImage + "/" + image + ".png");
+
+    // Everything else
+    for (const dirObject of directions) {
+      var num = dirObject.num;
+      var dirArray = dirObject.dir;
+      for (const dir of dirArray) {
+        image = baseImage + "-" + num + "-" + dir;
+        game.load.image(image, "assets/tiles/" + theme + "/" + baseImage + "/" + image + ".png");
+      }
+    }
+
+    // Ocean / River bonus tiles
+    if ((baseImage == "ocean") || (baseImage == "river")) {
+      for (const dir of directionsC) {
+        image = baseImage + "-2-" + dir + "-c";
+        game.load.image(image, "assets/tiles/" + theme + "/" + baseImage + "/" + image + ".png");
+      }
+    }
+  }
+
+  // Alternate wall tiles
+  for (var i = 0; i < 4; i++) {
+    image = "wall-2-we-" + i;
+    game.load.image(image, "assets/tiles/" + theme + "/wall/" + image + ".png");
+  }
+
+  // Alternate stone tiles
+  for (var i = 0; i < 8; i++) {
+    image = "stone-" + i;
+    game.load.image(image, "assets/tiles/" + theme + "/stone/" + image + ".png");
+  }
+
+
+  // ==============================
+  //   Bridge
+  // ==============================
+  image = "bridge-0-h";
+  game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
+  image = "bridge-0-v";
+  game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
+
+  var bridgeDir = ["n", "s", "w", "e"];
+  for (const dir of bridgeDir) {
+    image = "bridge" + "-1-" + dir;
+    game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
+  }
+
+  image = "bridge-2-ns";
+  game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
+  image = "bridge-2-we";
+  game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
+
+  image = "bridge-4-nswe";
+  game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
+
+  // ==============================
+  //   Structures
+  // ==============================
+  image = "leyline"
+  game.load.image(image + "-struct", "assets/tiles/" + theme + "/structures/" + image + "-struct.png");
+  game.load.image(image, "assets/tiles/" + theme + "/structures/" + image + ".png");
+
+  image = "ruins_leyline"
+  game.load.image(image + "-struct", "assets/tiles/" + theme + "/structures/" + image + "-struct.png");
+  game.load.image(image, "assets/tiles/" + theme + "/structures/" + image + ".png");
+
+
+  // ==============================
+  //   Claimable Structures
+  // ==============================
+  var claimables = ["fortress", "workshop"];
+
+  for (const struct of claimables) {
+    image = struct;
+    game.load.image(image + "-struct", "assets/tiles/" + theme + "/structures/" + image + "-struct.png");
+    game.load.image(image, "assets/tiles/" + theme + "/structures/" + image + ".png");
+
+    for (var i = 0; i < 4; i++) {
+      image = struct + "_" + i
+      game.load.image(image + "-struct", "assets/tiles/" + theme + "/structures/" + image + "-struct.png");
+      game.load.image(image, "assets/tiles/" + theme + "/structures/" + image + ".png");
+    }
+
+    image = "ruins_" + struct;
+    game.load.image(image + "-struct", "assets/tiles/" + theme + "/structures/" + image + "-struct.png");
+    game.load.image(image, "assets/tiles/" + theme + "/structures/" + image + ".png");
+  }
+
+}
+
+//---------------
 // DESCRIPTION: Unloads map tiles
 //   *** Must be kept up to date with preloadMapTiles    ***
 //   *** Otherwise tiles won't change between map themes ***
@@ -179,196 +368,6 @@ function unloadMapTiles(game) {
     image = "ruins_" + struct;
     removeTexture(game, image + "-struct");
     removeTexture(game, image);
-  }
-
-}
-
-//---------------
-// DESCRIPTION: Loads map tiles
-//---------------
-function preloadMapTiles(game, theme, lastTheme) {
-
-  // Unload images if necessary
-  theme = theme || "plains";
-  lastTheme = lastTheme || "plains";
-  if (theme != lastTheme) {
-    unloadMapTiles(game);
-  }
-  console.log(theme)
-
-
-  var image;
-  var directions = [
-    { num: 1, dir: ["n", "s", "w", "e"] },
-    { num: 2, dir: ["ne", "ns", "nw", "se", "we", "sw"] },
-    { num: 3, dir: ["nse", "nsw", "nwe", "swe"] },
-    { num: 4, dir: ["nswe"] },
-  ];
-  var directionsC = ["nw", "ne", "sw", "se"];
-
-
-  // ==============================
-  //   Base tile images
-  // ==============================
-  var bases = ["grass", "forest", "mountain", "ocean", "path",
-   "wall", "river", "bridge", "stone"];
-  for (const base of bases) {
-    game.load.image(base, "assets/tiles/" + theme + "/" + base + "/base.png");
-  }
-  // ==============================
-  //   Grass
-  // ==============================
-  for (var i = 0; i < 13; i++) {
-    image = "grass-" + i;
-    game.load.image(image, "assets/tiles/" + theme + "/grass/" + image + ".png");
-  }
-
-  // ==============================
-  //   Forest
-  // ==============================
-  image = "forest-1-0";
-  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
-  image = "forest-1-1";
-  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
-  image = "forest-1-2";
-  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
-
-  image = "forest-2-h-0";
-  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
-  image = "forest-2-h-1";
-  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
-
-  image = "forest-2-v-0";
-  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
-  image = "forest-2-v-1";
-  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
-
-  image = "forest-3-h";
-  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
-  image = "forest-3-v";
-  game.load.image(image, "assets/tiles/" + theme + "/forest/" + image + ".png");
-
-  // ==============================
-  //   Mountain
-  // ==============================
-  image = "mountain-1";
-  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
-
-  image = "mountain-2-h";
-  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
-  image = "mountain-2-v";
-  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
-
-  image = "mountain-3-h";
-  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
-  image = "mountain-3-v";
-  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
-
-  image = "mountain-4-h";
-  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
-  image = "mountain-4-v";
-  game.load.image(image, "assets/tiles/" + theme + "/mountain/" + image + ".png");
-
-  // ==============================
-  //   Directional
-  // ==============================
-  var directional = [
-    "ocean",
-    "path",
-    "wall",
-    "river",
-    "stone",
-  ];
-  for (const baseImage of directional) {
-    // 0
-    image = baseImage + "-0-";
-    game.load.image(image, "assets/tiles/" + theme + "/" + baseImage + "/" + image + ".png");
-
-    // Everything else
-    for (const dirObject of directions) {
-      var num = dirObject.num;
-      var dirArray = dirObject.dir;
-      for (const dir of dirArray) {
-        image = baseImage + "-" + num + "-" + dir;
-        game.load.image(image, "assets/tiles/" + theme + "/" + baseImage + "/" + image + ".png");
-      }
-    }
-
-    // Ocean / River bonus tiles
-    if ((baseImage == "ocean") || (baseImage == "river")) {
-      for (const dir of directionsC) {
-        image = baseImage + "-2-" + dir + "-c";
-        game.load.image(image, "assets/tiles/" + theme + "/" + baseImage + "/" + image + ".png");
-      }
-    }
-  }
-
-  // Alternate wall tiles
-  for (var i = 0; i < 4; i++) {
-    image = "wall-2-we-" + i;
-    game.load.image(image, "assets/tiles/" + theme + "/wall/" + image + ".png");
-  }
-
-  // Alternate stone tiles
-  for (var i = 0; i < 8; i++) {
-    image = "stone-" + i;
-    game.load.image(image, "assets/tiles/" + theme + "/stone/" + image + ".png");
-  }
-
-
-  // ==============================
-  //   Bridge
-  // ==============================
-  image = "bridge-0-h";
-  game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
-  image = "bridge-0-v";
-  game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
-
-  var bridgeDir = ["n", "s", "w", "e"];
-  for (const dir of bridgeDir) {
-    image = "bridge" + "-1-" + dir;
-    game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
-  }
-
-  image = "bridge-2-ns";
-  game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
-  image = "bridge-2-we";
-  game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
-
-  image = "bridge-4-nswe";
-  game.load.image(image, "assets/tiles/" + theme + "/bridge/" + image + ".png");
-
-  // ==============================
-  //   Structures
-  // ==============================
-  image = "leyline"
-  game.load.image(image + "-struct", "assets/tiles/" + theme + "/structures/" + image + "-struct.png");
-  game.load.image(image, "assets/tiles/" + theme + "/structures/" + image + ".png");
-
-  image = "ruins_leyline"
-  game.load.image(image + "-struct", "assets/tiles/" + theme + "/structures/" + image + "-struct.png");
-  game.load.image(image, "assets/tiles/" + theme + "/structures/" + image + ".png");
-
-
-  // ==============================
-  //   Claimable Structures
-  // ==============================
-  var claimables = ["fortress", "workshop"];
-
-  for (const struct of claimables) {
-    image = struct;
-    game.load.image(image + "-struct", "assets/tiles/" + theme + "/structures/" + image + "-struct.png");
-    game.load.image(image, "assets/tiles/" + theme + "/structures/" + image + ".png");
-
-    for (var i = 0; i < 4; i++) {
-      image = struct + "_" + i
-      game.load.image(image + "-struct", "assets/tiles/" + theme + "/structures/" + image + "-struct.png");
-      game.load.image(image, "assets/tiles/" + theme + "/structures/" + image + ".png");
-    }
-
-    image = "ruins_" + struct;
-    game.load.image(image + "-struct", "assets/tiles/" + theme + "/structures/" + image + "-struct.png");
-    game.load.image(image, "assets/tiles/" + theme + "/structures/" + image + ".png");
   }
 
 }

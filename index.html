@@ -238,11 +238,14 @@
           super('BattleScene');
           this._BattleMap;
           this._playerData;
+          this._theme;
+          this._lastTheme;
         }
 
         init(data) {
           this._BattleMap = data.map;
           this._playerData = data.playerData;
+          this._theme = data.theme;
         }
 
         preload() {
