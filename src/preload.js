@@ -194,6 +194,7 @@ function preloadMapTiles(game, theme, lastTheme) {
   if (theme != lastTheme) {
     unloadMapTiles(game);
   }
+  console.log(theme)
 
 
   var image;
