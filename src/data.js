@@ -135,7 +135,7 @@ function loadPlayerDataFile(game, dataText, music) {
   // Load and validate player data
   var playerData;
   try { playerData = decryptPlayerData(dataText); }
-  catch { invalidPlayerData(); return; }
+  catch (exception) { invalidPlayerData(); return; }
 
   if (!playerData) { invalidPlayerData(); return; }
   if (!playerData.name) { invalidPlayerData(); return; }
