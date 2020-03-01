@@ -107,6 +107,12 @@ function preloadMapTiles(game, theme, lastTheme) {
       var num = dirObject.num;
       var dirArray = dirObject.dir;
       for (const dir of dirArray) {
+
+        // TODO: Add these eventually
+        if ((baseImage == "stone") && (num == 1)) { continue; }
+        if ((baseImage == "stone") && (dir == "we")) { continue; }
+        if ((baseImage == "stone") && (dir == "ns")) { continue; }
+
         image = baseImage + "-" + num + "-" + dir;
         game.load.image(image, "assets/tiles/" + theme + "/" + baseImage + "/" + image + ".png");
       }

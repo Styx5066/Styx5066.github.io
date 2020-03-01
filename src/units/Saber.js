@@ -26,7 +26,7 @@ function Artemis(game, faction) {
   var activeSkills = [
     new Skill("Vampire Bite", "skill-Mad Enhancement",
               skillTypeEnum.Enemy, "skillVampire", servantCooldown(7), 1,
-              ["Deals 125& damage to one enemy. Recovers own HP by 2/3rds of the damage dealt."]),
+              ["Deals 125% damage to one enemy. Recovers own HP by 2/3rds of the damage dealt."]),
     new Skill("Supernatural Reflexes", "skill-Evasion",
               skillTypeEnum.Self, "skillEvasionAtk", servantCooldown(7), 0,
               ["Grants self Evasion for 2 attacks."]),

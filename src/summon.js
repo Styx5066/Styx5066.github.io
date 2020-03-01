@@ -22,6 +22,10 @@ function preloadSummon(game) {
 
   for (const unitClass of Object.values(classEnum)) {
     for (const unitRank of Object.values(rankEnum)) {
+
+      if (unitClass == "Shielder") { continue; }
+      if (unitClass == "Unknown") { continue; }
+
       var image = unitRank + "-" + unitClass;
       game.load.image("Card-" + image, "assets/ui/Cards/" + image + ".png");
     }
