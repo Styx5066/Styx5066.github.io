@@ -6,14 +6,14 @@
 // DESCRIPTION: Determines whether dev options appear
 //---------------
 function devMode() {
-  return true;
+  return false;
 }
 
 //---------------
 // DESCRIPTION: Determines whether dev options appear
 //---------------
 function version() {
-  return "0.1.12";
+  return "0.1.12a";
 }
 
 // ------------------------------------------------------
