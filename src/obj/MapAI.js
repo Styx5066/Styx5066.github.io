@@ -270,6 +270,7 @@ class MapAI {
     var targetIsStruct = false;
     var mostDamage = 0;
     var leastHP = 999999;
+    var tauntInRange = this.isTauntInRange(unit);
 
     // Go through each possible target
     for (const enemy of enemyList) {
@@ -281,7 +282,7 @@ class MapAI {
       var enemyHP = enemy.curHP;
 
       // If the enemy would die, immediately select that one
-      if (damage > enemyHP) {
+      if ((damage > enemyHP) && !tauntInRange) {
         targetEnemy = enemy;
         break;
       }

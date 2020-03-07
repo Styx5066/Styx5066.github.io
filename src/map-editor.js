@@ -34,7 +34,7 @@ function createMapEditor(game) {
   fadeSceneIn(game);
 
   // BGM
-  var bgm = game.sound.add("map01", { volume: 1 } );
+  var bgm = game.sound.add("map01", { volume: 0.7 } );
   bgm.loop = true;
   bgm.play();
 

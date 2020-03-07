@@ -65,8 +65,8 @@ function createSummon(game) {
 
   // Menu sounds
   var sounds = {
-    select: game.sound.add("menu-select"),
-    accept: game.sound.add("menu-accept"),
+    select: game.sound.add("menu-select", { volume: 0.5 } ),
+    accept: game.sound.add("menu-accept", { volume: 0.5 } ),
   };
 
 
@@ -265,7 +265,7 @@ function startSummon(game, playerData, allUI, cards, music, sounds) {
     duration: 700,
     onComplete: () => {
       music.volume = 0.1;
-      game.sound.add("summon-sound").play();
+      game.sound.add("summon-sound", { volume: 0.7 } ).play();
      },
   } );
 
@@ -291,7 +291,7 @@ function startSummon(game, playerData, allUI, cards, music, sounds) {
     hold: 2000,
     onComplete: () => {
       summonedCard.alpha = 1;
-      game.sound.add("summon-cards").play();
+      game.sound.add("summon-cards", { volume: 0.7 } ).play();
 
       // Split cards
       game.tweens.add({
@@ -322,7 +322,7 @@ function startSummon(game, playerData, allUI, cards, music, sounds) {
     ease: "Linear",
     duration: 1000,
     onComplete: () => {
-      game.sound.add("summon-sound2").play();
+      game.sound.add("summon-sound2", { volume: 0.7 } ).play();
     }
   } );
   timeline.add( {
@@ -520,7 +520,7 @@ function summonIntroSelect(game, playerData, music) {
   ];
 
   var xPos = 74;
-  var selectSound = game.sound.add("menu-select");
+  var selectSound = game.sound.add("menu-select", { volume: 0.5 } );
   for (const servant of starterServants) {
       showStarterServant(game, servant, xPos, allUI, allAnim, playerData, music, selectSound);
       xPos += 146;
@@ -665,7 +665,7 @@ function showStarterServant(game, servant, xPos, allUI, allAnim, playerData, mus
 
               // Play sound
               music.volume = 0.3;
-              game.sound.add("summon-sound").play();
+              game.sound.add("summon-sound", { volume: 0.7 } ).play();
 
               game.time.delayedCall(500, () => {
                 servantDialogue(game, servant, () => {

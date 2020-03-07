@@ -19,7 +19,7 @@ function checkGameCodes(game, playerData, code) {
 
 
   if (success) {
-    var sound = game.sound.add("accept02");
+    var sound = game.sound.add("accept02", { volume: 0.5 } );
     sound.play();
   }
 }
@@ -62,8 +62,8 @@ function createOptions(game) {
 
   // Menu sounds
   var sounds = {
-    select: game.sound.add("menu-select"),
-    accept: game.sound.add("menu-accept"),
+    select: game.sound.add("menu-select", { volume: 0.5 } ),
+    accept: game.sound.add("menu-accept", { volume: 0.5 } ),
   };
 
   // Title bar

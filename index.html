@@ -135,9 +135,19 @@
     //---------------
     class GameMenuScene extends Phaser.Scene {
         constructor() {
-          super('GameMenuScene');
+          super({
+            key: 'GameMenuScene',
+            pack: { files: [
+              { type: 'image', key: 'fou1', url: 'assets/ui/fou1.png' },
+              { type: 'image', key: 'fou2', url: 'assets/ui/fou2.png' },
+              { type: 'image', key: 'fou3', url: 'assets/ui/fou3.png' },
+              { type: 'image', key: 'fou4', url: 'assets/ui/fou4.png' },
+              { type: 'image', key: 'blueLine', url: 'assets/ui/blue-line.png' },
+            ] },
+          });
           this._playerData;
           this._music;
+          this._preloaded = false;
         }
 
         init(data) {
@@ -148,6 +158,10 @@
         preload() {
           preloadGameMenu(this);
         }
+
+        // pack() {
+        //   return [{ type: 'image', key: 'fou', url: 'assets/ui/fou.png' }];
+        // }
 
         create() {
           loadCursor();

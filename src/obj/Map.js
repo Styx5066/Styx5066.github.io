@@ -213,28 +213,28 @@ class Map {
     this.mapDebugInfo();
 
     // Load audio once instead of every time a sound is played
-    this._sounds.select  = this._game.sound.add("select");
-    this._sounds.selectMenu = this._game.sound.add("menu-select");
-    this._sounds.cancel  = this._game.sound.add("cancel");
+    this._sounds.select  = this._game.sound.add("select", { volume: 0.5 } );
+    this._sounds.selectMenu = this._game.sound.add("menu-select", { volume: 0.5 } );
+    this._sounds.cancel  = this._game.sound.add("cancel", { volume: 0.5 } );
 
-    this._sounds.damage  = this._game.sound.add("damage");
-    this._sounds.damageEff  = this._game.sound.add("damage-effective");
-    this._sounds.damageRes  = this._game.sound.add("damage-resist");
-    this._sounds.damageMiss  = this._game.sound.add("damage-miss");
-    this._sounds.heal  = this._game.sound.add("heal");
+    this._sounds.damage  = this._game.sound.add("damage", { volume: 0.5 } );
+    this._sounds.damageEff  = this._game.sound.add("damage-effective", { volume: 0.5 } );
+    this._sounds.damageRes  = this._game.sound.add("damage-resist", { volume: 0.5 } );
+    this._sounds.damageMiss  = this._game.sound.add("damage-miss", { volume: 0.5 } );
+    this._sounds.heal  = this._game.sound.add("heal", { volume: 0.5 } );
 
-    this._sounds.skillUse = this._game.sound.add("skill-use");
-    this._sounds.skillUseDmg = this._game.sound.add("skill-use-dmg");
+    this._sounds.skillUse = this._game.sound.add("skill-use", { volume: 0.5 } );
+    this._sounds.skillUseDmg = this._game.sound.add("skill-use-dmg", { volume: 0.5 } );
 
-    this._sounds.npStart = this._game.sound.add("np-start");
-    this._sounds.npUse = this._game.sound.add("np-use");
-    this._sounds.npDamage = this._game.sound.add("np-damage");
+    this._sounds.npStart = this._game.sound.add("np-start", { volume: 0.5 } );
+    this._sounds.npUse = this._game.sound.add("np-use", { volume: 0.5 } );
+    this._sounds.npDamage = this._game.sound.add("np-damage", { volume: 0.5 } );
 
-    this._sounds.destroy = this._game.sound.add("destroy");
-    this._sounds.death   = this._game.sound.add("death");
+    this._sounds.destroy = this._game.sound.add("destroy", { volume: 0.5 } );
+    this._sounds.death   = this._game.sound.add("death", { volume: 0.5 } );
 
-    this._sounds.claim   = this._game.sound.add("accept02");
-    this._sounds.click   = this._game.sound.add("click");
+    this._sounds.claim   = this._game.sound.add("accept02", { volume: 0.5 } );
+    this._sounds.click   = this._game.sound.add("click", { volume: 0.5 } );
 
     this._bgm.loop = true;
     this._bgm.play();
@@ -349,12 +349,12 @@ class Map {
       color = "#ff4040";
       text = "RETREAT"
       victory = false;
-      victoryBGM = this._game.sound.add('defeat', { volume: 1 } );
+      victoryBGM = this._game.sound.add('defeat', { volume: 0.7 } );
     }
     else if (victory) {
       color = "#e9d100";
       text = "VICTORY"
-      victoryBGM = this._game.sound.add('victory', { volume: 1 } );
+      victoryBGM = this._game.sound.add('victory', { volume: 0.7 } );
 
       // Mark the map as completed
       if (this._playerData && this._loadedMap) {
@@ -367,7 +367,7 @@ class Map {
     else {
       color = "#ff4040";
       text = "DEFEAT"
-      victoryBGM = this._game.sound.add('defeat', { volume: 1 } );
+      victoryBGM = this._game.sound.add('defeat', { volume: 0.7 } );
     }
 
     // Tint the screen and show a message for the victors
@@ -1097,6 +1097,9 @@ class Map {
         servantY += 72;
       }
     }
+
+    // Extra space at the bottom
+    servantCam.setBounds(cameraX, cameraY, cameraWidth, (servantY + 72 - cameraY));
   }
   // ==============================
   //   Start Button
@@ -1373,15 +1376,21 @@ class Map {
         //   Forest / Mountain
         // ==============================
         if ((current == "forest") || (current == "mountain")) {
+          var tile2, tile3, tile4;
+
           // East
-          var tile2 = this.getTileImageBase((x + 1), y);
-          var tile3 = this.getTileImageBase((x + 2), y);
-          var tile4 = this.getTileImageBase((x + 3), y);
+          var tile2T = this.getTile((x + 1), y);
+          if (tile2T) { tile2 = tile2T.image; }
+          var tile3T = this.getTile((x + 2), y);
+          if (tile3T) { tile3 = tile3T.image; }
+          var tile4T = this.getTile((x + 3), y);
+          if (tile4T) { tile4 = tile4T.image; }
+
 
           sameCount = 1;
-          if (this.sameTileImage(current, tile2, true)) { sameCount++; }
-          if ((sameCount > 1) && (this.sameTileImage(current, tile3, true))) { sameCount++; }
-          if ((current == "mountain") && (sameCount > 2) && (this.sameTileImage(current, tile4, true))) { sameCount++; }
+          if (tile2T && !tile2T.bigImage && this.sameTileImage(current, tile2, true)) { sameCount++; }
+          if ((sameCount > 1) && (tile3T && !tile3T.bigImage && this.sameTileImage(current, tile3, true))) { sameCount++; }
+          if ((current == "mountain") && (sameCount > 2) && (tile4T && !tile4T.bigImage && this.sameTileImage(current, tile4, true))) { sameCount++; }
 
           if (sameCount > 1) {
             if (current == "forest") { curTile.image = getForestTile(sameCount, "h"); }
@@ -1393,15 +1402,27 @@ class Map {
             continue;
           }
 
+          tile2 = null;
+          tile3 = null;
+          tile4 = null;
+
           // Check to the south
-          tile2 = this.getTileImageBase(x, (y + 1));
-          tile3 = this.getTileImageBase(x, (y + 2));
-          tile4 = this.getTileImageBase(x, (y + 3));
+          tile2T = this.getTile(x, (y + 1));
+          if (tile2T) { tile2 = tile2T.image; }
+          tile3T = this.getTile(x, (y + 2));
+          if (tile3T) { tile3 = tile3T.image; }
+          tile4T = this.getTile(x, (y + 3));
+          if (tile4T) { tile4 = tile4T.image; }
+
 
           sameCount = 1;
-          if (this.sameTileImage(current, tile2, true)) { sameCount++; }
-          if ((sameCount > 1) && (this.sameTileImage(current, tile3, true))) { sameCount++; }
-          if ((current == "mountain") && (sameCount > 2) && (this.sameTileImage(current, tile4, true))) { sameCount++; }
+          if (tile2T && !tile2T.bigImage && this.sameTileImage(current, tile2, true)) { sameCount++; }
+          if ((sameCount > 1) && (tile3T && !tile3T.bigImage && this.sameTileImage(current, tile3, true))) { sameCount++; }
+          if ((current == "mountain") && (sameCount > 2) && (tile4T && !tile4T.bigImage && this.sameTileImage(current, tile4, true))) { sameCount++; }
+
+          if (x == 15 && y == 9) {
+            console.log(sameCount)
+          }
 
           if (sameCount > 1) {
             if (current == "forest") {
@@ -2867,7 +2888,7 @@ class Map {
     if (soundName == "select") { this._sounds.select.play(); }
     else if (soundName == "cancel") { this._sounds.cancel.play(); }
     else if (soundName) {
-      var sound = this._game.sound.add(soundName);
+      var sound = this._game.sound.add(soundName, { volume: 0.7 } );
       sound.play();
     }
 
@@ -3810,6 +3831,7 @@ class Map {
     defaultCursor();
     this._attacker = unit;
     this._pauseTileHover = false;
+    this._enemyList.length = 0;
 
     // North
     var northRange = [];
@@ -3859,6 +3881,7 @@ class Map {
     defaultCursor();
     this._attacker = unit;
     this._pauseTileHover = false;
+    this._enemyList.length = 0;
 
     // North
     var northRange = [];
@@ -3922,6 +3945,7 @@ class Map {
     defaultCursor();
     this._attacker = unit;
     this._pauseTileHover = false;
+    this._enemyList.length = 0;
 
     // Range around user
     var aoeRange = [];

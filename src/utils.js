@@ -6,14 +6,14 @@
 // DESCRIPTION: Determines whether dev options appear
 //---------------
 function devMode() {
-  return false;
+  return true;
 }
 
 //---------------
 // DESCRIPTION: Determines whether dev options appear
 //---------------
 function version() {
-  return "0.1.11e";
+  return "0.1.12";
 }
 
 // ------------------------------------------------------
@@ -255,7 +255,7 @@ function getBGM(game, type) {
   else { tracks = ["battle01", "battle02", "battle03", "battle04"]; }
 
   var rand = getRandomInt(0, tracks.length);
-  return game.sound.add(tracks[rand], { volume: 0.7 } );
+  return game.sound.add(tracks[rand], { volume: 0.5 } );
 }
 
 //---------------

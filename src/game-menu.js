@@ -8,10 +8,29 @@
 //  game (I,REQ) - Game object
 //---------------
 function preloadGameMenu(game) {
+
+  // Show progress of preload
+  if (!game._preloaded) {
+    preloadProgress(game);
+
+    // Load almost everything the rest of the scenes will use
+    preloadMapTiles(game);
+    preloadTokenUI(game);
+    preloadClassIcons(game);
+    preloadUnits(game);
+    preloadSkills(game);
+    preloadStatus(game);
+    preloadDialogue(game);
+    preloadSounds(game);
+    preloadMusic(game);
+  }
+
   game.load.image('game-bg', 'assets/bg/blue-bg.png');
   game.load.image('chaldea-bg', 'assets/bg/chaldea.png');
   game.load.image("screentint", "assets/ui/screentint-alpha-50.png");
   game.load.image('black', 'assets/ui/black.png');
+
+  preloadUI(game);
 
   game.load.image('game-button', 'assets/ui/game-button.png');
   game.load.image("button-back", "assets/ui/button-back.png");
@@ -23,9 +42,7 @@ function preloadGameMenu(game) {
 
   game.load.image("button-tiles", "assets/ui/button-tiles.png");
   game.load.image("button-help", "assets/ui/button-help.png");
-
   game.load.image("menu-master", "assets/ui/menu-master.png");
-  preloadUI(game);
 
   game.load.audio("game-menu-bgm", ["assets/music/myRoom.mp3"]);
   game.load.audio("menu-select", ["assets/sounds/select01.mp3"]);
@@ -54,6 +71,59 @@ function preloadGameMenu(game) {
 }
 
 //---------------
+// DESCRIPTION: Shows progress of preload
+// PARAMS:
+//  game (I,REQ) - Game object
+//---------------
+function preloadProgress(game) {
+
+  // Title
+  var titleStyle = { font: "45px FrizQuadrata", fill: "#fff" };
+  var title = game.add.text(512, 200, "Loading", titleStyle).setOrigin(0.5, 1);
+
+  // Line
+  var line = game.add.image(512, 210, "blueLine").setOrigin(0.5, 0.5);
+
+  // Percent
+  var style = { font: "35px Optima", fill: "#fff" };
+  var percent = game.add.text(512, 250, "0%", style).setOrigin(0.5, 0);
+
+  // Fou
+  var anim = game.anims.create({
+        key: 'fouRun',
+        frames: [
+            { key: 'fou1' },
+            { key: 'fou2' },
+            { key: 'fou3' },
+            { key: 'fou4' },
+        ],
+        frameRate: 5,
+        repeat: -1
+    });
+  var fou = game.add.sprite(512, 340, 'fou1').setOrigin(0.5, 0);
+  fou.play('fouRun');
+
+
+  // Update percent
+  game.load.on("progress", (value) => {
+    if (!game._preloaded) {
+      percent.text = Math.round(value * 100) + "%";
+    }
+  });
+
+  game.load.on("complete", () => {
+    if (!game._preloaded) {
+      game._preloaded = true;
+      title.destroy();
+      line.destroy();
+      percent.destroy();
+      anim.destroy();
+      fou.destroy();
+    }
+  });
+}
+
+//---------------
 // DESCRIPTION: Creates the main game menu
 // PARAMS:
 //  game (I,REQ) - Game object
@@ -75,6 +145,11 @@ function createGameMenu(game) {
   shadow.setAngle(66);
 
   // Music
+  if (music && music.key == "menu-bgm") {
+    music.stop();
+    music = null;
+  }
+
   if (!music) {
     music = game.sound.add('game-menu-bgm', { volume: 0.7 } );
     music.loop = true;
@@ -86,8 +161,8 @@ function createGameMenu(game) {
 
   // Menu sounds
   var sounds = {
-    select: game.sound.add("menu-select"),
-    accept: game.sound.add("menu-accept"),
+    select: game.sound.add("menu-select", { volume: 0.5 } ),
+    accept: game.sound.add("menu-accept", { volume: 0.5 } ),
   };
 
 
@@ -110,14 +185,6 @@ function createGameMenu(game) {
   var bellaIdx = getRandomInt(0, bellaFace.length);
   var bella = game.add.image(1144, 0, "Bella-" + bellaFace[bellaIdx]).setOrigin(1, 0);
   bella.flipX = true;
-
-
-  // ================================
-  // *** Testing ***
-  // playerData.servants.length = 0;
-  // playerData.qp = 4000;
-  // savePlayerData(playerData);
-  // ================================
 
 
   // No Servants?

@@ -76,8 +76,8 @@ function createBattleSim(game) {
 
   // Menu sounds
   var sounds = {
-    select: game.sound.add("menu-select"),
-    accept: game.sound.add("menu-accept"),
+    select: game.sound.add("menu-select", { volume: 0.5 } ),
+    accept: game.sound.add("menu-accept", { volume: 0.5 } ),
   };
 
 

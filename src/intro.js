@@ -33,8 +33,8 @@ function createIntro(game) {
 
   // Black screen
   fadeSceneIn(game, 3000);
-  var selectSound = game.sound.add("menu-select");
-  var music = game.sound.add("bgm-quiet", { volume: 1 } );
+  var selectSound = game.sound.add("menu-select", { volume: 0.5 } );
+  var music = game.sound.add("bgm-quiet", { volume: 0.8 } );
   music.loop = true;
   music.play();
 

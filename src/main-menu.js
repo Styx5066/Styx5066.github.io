@@ -69,7 +69,7 @@ function createMainMenu(game) {
 // music (I,REQ) - Currently-playing music, so it can be stopped
 //---------------
 function startGame(game, music) {
-  var accept = game.sound.add('menu-accept');
+  var accept = game.sound.add('menu-accept', { volume: 0.5 } );
   accept.play();
 
   game.time.delayedCall(1500, startGameAfterDelay, [game, music]);
@@ -82,13 +82,7 @@ function startGame(game, music) {
 // music (I,REQ) - Currently-playing music, so it can be stopped
 //---------------
 function startGameAfterDelay(game, music) {
-  music.stop();
   var playerData = JSON.parse(localStorage.getItem("playerData"));
-
-  // ==============================
-  // Testing new player
-  // playerData = null;
-  // ==============================
 
   // No data - start intro scene
   if (!playerData) {
@@ -97,6 +91,6 @@ function startGameAfterDelay(game, music) {
   // Otherwise start game as normal with loaded data
   else {
     reconcilePlayerData(playerData);
-    game.scene.start("GameMenuScene", { playerData: playerData });
+    game.scene.start("GameMenuScene", { playerData: playerData, music: music });
   }
 }

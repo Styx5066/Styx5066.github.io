@@ -16,7 +16,7 @@ function TestMap(game) {
     // Player
     { unit: ElizabethBathory(game, player), x: 2, y: 3 },
     //{ unit: NurseryRhyme(game, player),  x: 2, y:1 },
-    { unit: ChevalierdEon(game, player),  x: 2, y: 2 },
+    { unit: Arash(game, player),  x: 2, y: 2 },
 
     // Enemy
     { unit: ArtoriaAlter(game, enemy),  x: 5, y: 2 },
@@ -24,7 +24,6 @@ function TestMap(game) {
   ];
 
   units[1].unit._npChargeTime = 1;
-  units[2].unit.aiType = aiTypeEnum.Defensive;
 
 
   // var unitPlacement = [
