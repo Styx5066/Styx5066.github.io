@@ -485,7 +485,8 @@ class Map {
 
     // Camera controls - mouse wheel
     this._game.input.on('wheel', function (pointer, gameObjects, deltaX, deltaY, deltaZ) {
-        var mod = deltaY * 10;
+        var mod = 40;
+        if (deltaY < 0) { mod = -40; }
         resultCam.setScroll(0, (resultCam.worldView.y + mod))
     });
 
@@ -1016,7 +1017,8 @@ class Map {
 
     // Camera controls - mouse wheel
     this._game.input.on('wheel', function (pointer, gameObjects, deltaX, deltaY, deltaZ) {
-        var mod = deltaY * 10;
+        var mod = 40;
+        if (deltaY < 0) { mod = -40; }
         servantCam.setScroll(0, (servantCam.worldView.y + mod))
     });
 

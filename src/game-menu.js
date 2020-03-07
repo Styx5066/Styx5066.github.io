@@ -35,7 +35,6 @@ function preloadGameMenu(game) {
   game.load.image('game-button', 'assets/ui/game-button.png');
   game.load.image("button-back", "assets/ui/button-back.png");
 
-  game.load.image("button-map", "assets/ui/box-map.png");
   game.load.image("scroll-frame", "assets/ui/scroll-frame.png");
   game.load.image("popup-window", "assets/ui/popup-window.png");
   game.load.image("divider", "assets/ui/divider.png");

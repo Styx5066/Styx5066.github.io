@@ -86,6 +86,7 @@ function startGameAfterDelay(game, music) {
 
   // No data - start intro scene
   if (!playerData) {
+    music.stop();
     game.scene.start("IntroScene");
   }
   // Otherwise start game as normal with loaded data

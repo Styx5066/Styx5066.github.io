@@ -81,7 +81,8 @@ class HelpTips {
 
     // Camera controls - mouse wheel
     game.input.on('wheel', function (pointer, gameObjects, deltaX, deltaY, deltaZ) {
-        var mod = deltaY * 10;
+        var mod = 40;
+        if (deltaY < 0) { mod = -40; }
         mapCamera.setScroll(0, (mapCamera.worldView.y + mod))
     });
 
