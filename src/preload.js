@@ -538,6 +538,7 @@ function preloadSkills(game) {
     "Assault",
     "Attack Up",
     "Body",
+    "Caster",
     "Charm",
     "Courage",
     "Damage Up",

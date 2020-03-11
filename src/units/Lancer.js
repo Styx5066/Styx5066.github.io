@@ -3,6 +3,79 @@
 */
 
 // ==========================================================
+function ArtoriaLancer(game, faction) {
+  // Basic info
+  var name = "Artoria";
+  var load = noSpaces("ArtoriaLancer");
+  var unitClass = classEnum.Lancer;
+  var image = "Artoria Lancer";
+  var rank = rankEnum.Gold;
+  var traits = [ "Arthur", "Dragon", "Female", "King", "Humanoid", "Riding", "Saberface", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = ["Are you my new manager? Please take care of me from now on, okay?"];
+
+  // Stats
+  var maxHP = servantHP(15606);
+  var attack = servantAtk(10995);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Mana Burst", "skill-Damage Up",
+              skillTypeEnum.Self, "skillAttackUp40", servantCooldown(7), 0,
+              ["Increases own attack by 40% for 1 turn."]),
+    new Skill("Blessings from the End of the World", "skill-NP Charge",
+               skillTypeEnum.Self, "skillNPDebuff", servantCooldown(8), 0,
+               ["Charges own NP gauge by 1.5 bars. Removes own debuffs."]),
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Magic Resistance", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResA", 0, 0,
+              "Increases own debuff resistance by 20%."),
+    new Skill("Riding", "skill-Riding",
+              skillTypeEnum.Passive, "skillRiding", 0, 0,
+              "Increases own movement range by 1."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Rhongomyniad", "The Spear That Shines To The Ends Of The Earth",
+    npTypeEnum.AoEdir, "npRhongomyniad", npStrengthAoE(), 50,
+    ["Deals 200% damage that ignores Invincibility to enemies in range. Charges own NP gauge by 1 bar.",
+     "Range: A line in one direction."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
 function CuChulainn(game, faction) {
   // Basic info
   var name = "Cú Chulainn";

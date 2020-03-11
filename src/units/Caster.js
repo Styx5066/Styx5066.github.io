@@ -27,7 +27,7 @@ function Andersen(game, faction) {
     new Skill("High-Speed Incantation", "skill-NP Charge",
               skillTypeEnum.Self, "skillNPGain", servantCooldown(7), 0,
               ["Charges own NP gauge by 1.5 bars."]),
-    new Skill("The Little Mermaid's Love", "skill-NP Regen",
+    new Skill("The Little Mermaid's Love", "skill-NP Generation",
               skillTypeEnum.Ally, "skillNPCharge", servantCooldown(7), 1,
               ["Increases one ally's NP charge generation to 1 bar per turn for 3 turns."])
   ];
@@ -265,6 +265,82 @@ function MedeaLily(game, faction) {
     npTypeEnum.AllyBurst, "npMedeaLily", 0, 1,
     ["Recovers HP of allies in range by 50. Removes their debuffs.",
      "Range: 4 spaces adjacent to and including the user."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
+function Nitocris(game, faction) {
+  // Basic info
+  var name = "Nitocris";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Caster;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [ "Divine", "Female", "Humanoid", "King", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = ["Servant, Caster. Reincarnation of the Sky God Horus, I, Nitocris have answered your summons.",
+               "However, I have one thing to say. Bow your head. You're being disrespectful!"];
+
+  // Stats
+  var maxHP = servantHP(11288);
+  var attack = servantAtk(9060);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Egyptian Magecraft", "skill-NP Charge",
+              skillTypeEnum.Self, "skillNPEgypt", servantCooldown(8), 0,
+              ["Charges own NP gauge by 2 bars.",
+               "Increases own Instant-Kill success rate by 5% for 3 turns."]),
+    new Skill("Affection of Horus", "skill-Heal",
+              skillTypeEnum.Self, "skillHorus", servantCooldown(8), 0,
+              ["Recovers own HP by 15 and removes own debuffs.",
+               "Grants self Guts status for 1 time over 3 turns."]),
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Territory Creation", "skill-Territory Creation",
+              skillTypeEnum.Passive, "skillTerritory", 0, 0,
+              "Increases own healing from Ley Lines by 10%."),
+    new Skill("Divinity", "skill-Divinity",
+              skillTypeEnum.Passive, "skillDivinity", 0, 0,
+              "Increases own damage by 5."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Anpu Neb Ta Djeser", "Nether Mirror Thesaurus",
+    npTypeEnum.AoEdir, "npNitocris", npStrengthAoE(), 4,
+    ["Deals 200% damage to enemies in range. 5% chance to Instant-Kill them.",
+     "Range: A line of 4 spaces in one direction."]);
   var npChargeTime;
 
   // ---------------

@@ -519,7 +519,7 @@ class Map {
     if (victory) {
       for (const unit of this._unitBank) {
         // if (!this._playerFactions.includes(unit.faction)) { continue; }
-        if (!this._playerData.servants.includes(unit.load)) { continue; }  // TODO: Add back in
+        if (!this._playerData.servants.includes(unit.load)) { continue; }
 
         var servantData = getServantData(this._playerData, unit);
         var bondPoints;
@@ -1421,10 +1421,6 @@ class Map {
           if (tile2T && !tile2T.bigImage && this.sameTileImage(current, tile2, true)) { sameCount++; }
           if ((sameCount > 1) && (tile3T && !tile3T.bigImage && this.sameTileImage(current, tile3, true))) { sameCount++; }
           if ((current == "mountain") && (sameCount > 2) && (tile4T && !tile4T.bigImage && this.sameTileImage(current, tile4, true))) { sameCount++; }
-
-          if (x == 15 && y == 9) {
-            console.log(sameCount)
-          }
 
           if (sameCount > 1) {
             if (current == "forest") {
@@ -3134,7 +3130,7 @@ class Map {
   actionMenu(pointer) {
     // Do nothing if during a turn
     if (this._unitInfo) { this._tileHover.setTexture("selection-cursor"); this._unitInfo = false; return; }
-    if (this._isTurnTransition) { return; }
+    if ((this._factionIndex > -1) && this._isTurnTransition) { return; }
     if (this._noActionMenu) { return; }
 
     // Get the tile
@@ -3565,6 +3561,7 @@ class Map {
       }
       if (noblePhantasm.name == "Pain Breaker") { useSound = this._sounds.heal; }
       else if (noblePhantasm.name == "Eightfold Blessings of Amaterasu") { useSound = this._sounds.heal; }
+      else if (noblePhantasm.name == "Nightingale Pledge") { useSound = this._sounds.heal; }
       else if (noblePhantasm.strength == -1) { useSound = this._sounds.npUse; }
 
       /// ==============================
@@ -4476,6 +4473,8 @@ class Map {
 
       // Class effectiveness
       var classModifier = classEffectiveness(attackingUnit.unitClass, targetUnit.unitClass);
+      if (targetUnit.hasPassiveSkill("Double Summon (" + attackingUnit.unitClass + ")")) { classModifier = effectiveEnum.Normal; }
+      if (attackingUnit.hasPassiveSkill("Double Summon (" + targetUnit.unitClass + ")")) { classModifier = effectiveEnum.Normal; }
       if (returnObj) { returnObj.effective = classModifier; }
       damage = damage * classModifier;
 
@@ -4554,13 +4553,28 @@ class Map {
   //---------------
   traitEffectiveness(attackingUnit, targetUnit) {
     var traitList = targetUnit.traits;
+    var strength = 0;
     var totalMod = 1;
 
+    // Damage Up
     for (const trait of traitList) {
       var status = attackingUnit.getStatus("Damage Up (" + trait + ")");
       if (!status) { continue; }
 
-      totalMod += (status.strength / 100);
+      strength = status.strength;
+      if (!strength) { strength = 10; }
+      totalMod += (strength / 100);
+    }
+
+    // Defense Up
+    traitList = attackingUnit.traits;
+    for (const trait of traitList) {
+      var status = targetUnit.getStatus("Defense Up (" + trait + ")");
+      if (!status) { continue; }
+
+      strength = status.strength;
+      if (!strength) { strength = 10; }
+      totalMod -= (strength / 100);
     }
 
     return totalMod;

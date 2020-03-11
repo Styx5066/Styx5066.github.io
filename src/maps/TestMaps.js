@@ -8,7 +8,7 @@ function TestMap(game) {
   var title = "Test Map";
   var difficulty = 1;
   var player = new Faction(game._playerData.name, 1, true);
-  var enemy  = new Faction("Enemy",  2, false);
+  var enemy  = new Faction("Enemy",  2, true);
 
   var bgm = game.sound.add("battle03", { volume: 0.7 } );
 
@@ -16,15 +16,20 @@ function TestMap(game) {
     // Player
     { unit: ElizabethBathory(game, player), x: 2, y: 3 },
     //{ unit: NurseryRhyme(game, player),  x: 2, y:1 },
-    { unit: Arash(game, player),  x: 2, y: 2 },
+    { unit: Semiramis(game, player),  x: 2, y: 2 },
 
     // Enemy
-    { unit: ArtoriaAlter(game, enemy),  x: 5, y: 2 },
-    { unit: MedeaLily(game, enemy), x: 5, y: 3 },
+    { unit: Circe(game, enemy),  x: 5, y: 2 },
+    { unit: Chimera(game, enemy), x: 5, y: 3 },
   ];
 
   units[1].unit._npChargeTime = 1;
 
+  var structures = [
+    { struct: Workshop(), x: 3, y: 4, faction: player, units: [
+        { load: "Celtic", cost: 200, classes: ["Saber", "Archer", "Lancer", "Caster"] },
+      ] },
+  ];
 
   // var unitPlacement = [
   //   { x: 0, y: 1, dist: 4, dir: "south" },
@@ -64,6 +69,7 @@ function TestMap(game) {
   var map = new Map(game, title, bgm);
   map.tiles = tiles;
   map.startUnits = units;
+  if (structures) { map.startStructs = structures; }
   map.addZones(zones, connections);
   map.addPlayerFaction(player);
   map.difficulty = difficulty;
@@ -72,30 +78,82 @@ function TestMap(game) {
 // ==========================================================
 
 // ==========================================================
-function ServantMap(game) {
+function ServantMapKnight(game) {
   var title = "Servant Test";
   var difficulty = 1;
   var player = new Faction(game._playerData.name, 1, true);
   var enemy  = new Faction("Enemy",  2);
+  var count = 0;
 
-  var bgm = game.sound.add("battle03", { volume: 0.7 } );
+  var bgm = getBGM(game, "normal");
 
   var units = [];
 
   // Add all Servants to the units under player
   var allServants = getAllServants(game, player);
   for (var i = 0; i < allServants.length; i++) {
+    if (allServants[i].unitClass == "Rider") { continue; }
+    if (allServants[i].unitClass == "Caster") { continue; }
+    if (allServants[i].unitClass == "Assassin") { continue; }
+    if (allServants[i].unitClass == "Berserker") { continue; }
+
     allServants[i]._npChargeTime = 1;
-    units.push({ unit: allServants[i], x: 1, y: (i + 1)  });
+    units.push({ unit: allServants[i], x: 1, y: (count + 1)  });
+    count++;
   }
 
   // Add Enemies here and there to serve as targets
-  for (var i = 2; i < allServants.length; i += 3) {
+  for (var i = 2; i < count; i += 3) {
     units.push({ unit: Skeleton(game, enemy), x: 4, y: i  });
   }
 
   var tiles = [];
-  var tileY = Math.max((allServants.length + 2), 10);
+  var tileY = Math.max((count + 2), 10);
+  for (var i = 0; i < tileY; i++) {
+    tiles.push([G, G, G, P, G, G, G, G, G, G, G, G, F, F, W, F]);
+  }
+
+  // ---------------
+  var map = new Map(game, title, bgm);
+  map.tiles = tiles;
+  map.startUnits = units;
+  map.addPlayerFaction(player);
+  map.difficulty = difficulty;
+  return map;
+}
+// ==========================================================
+
+// ==========================================================
+function ServantMapCavalry(game) {
+  var title = "Servant Test";
+  var difficulty = 1;
+  var player = new Faction(game._playerData.name, 1, true);
+  var enemy  = new Faction("Enemy",  2);
+  var count = 0;
+
+  var bgm = getBGM(game, "normal");
+
+  var units = [];
+
+  // Add all Servants to the units under player
+  var allServants = getAllServants(game, player);
+  for (var i = 0; i < allServants.length; i++) {
+    if (allServants[i].unitClass == "Saber") { continue; }
+    if (allServants[i].unitClass == "Archer") { continue; }
+    if (allServants[i].unitClass == "Lancer") { continue; }
+
+    allServants[i]._npChargeTime = 1;
+    units.push({ unit: allServants[i], x: 1, y: (count + 1)  });
+    count++;
+  }
+
+  // Add Enemies here and there to serve as targets
+  for (var i = 2; i < count; i += 3) {
+    units.push({ unit: Skeleton(game, enemy), x: 4, y: i  });
+  }
+
+  var tiles = [];
+  var tileY = Math.max((count + 2), 10);
   for (var i = 0; i < tileY; i++) {
     tiles.push([G, G, G, P, G, G, G, G, G, G, G, G, F, F, W, F]);
   }

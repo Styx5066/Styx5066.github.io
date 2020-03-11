@@ -296,6 +296,86 @@ function Lancelot(game, faction) {
 // ==========================================================
 
 // ==========================================================
+function Nightingale(game, faction) {
+  // Basic info
+  var name = "Nightingale";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Berserker;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [  "Female", "Humanoid", "Servant",, "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = [ "Please be at ease, now that I have come. Let us save all lives, without fail.",
+                "Even if all lives will have to be sacrificed." ];
+
+  // Stats
+  var maxHP = servantHP(15221);
+  var attack = servantAtk(10184);
+  var attackRange;
+  var movementRange = 4;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Nurse of Steel", "skill-Heal",
+              skillTypeEnum.Ally, "skillNurse", servantCooldown(6), 1,
+              ["Recovers one ally's HP by 25. Grants them Debuff Immunity for 3 turns."]),
+    new Skill("Angel's Cry", "skill-Damage Up",
+              skillTypeEnum.Ally, "skillAttackUp30", servantCooldown(7), 1,
+              ["Increases one ally's attack by 30% for 3 turns."])
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Mad Enhancement", "skill-Mad Enhancement",
+              skillTypeEnum.Passive, "skillMadEnhancement", 0, 0,
+              "Increases own attack by 10%."),
+    new Skill("Human Comprehension", "skill-Assault",
+              skillTypeEnum.Passive, "skillHumanComprehension", 0, 0,
+              ["Increases own attack against enemies with the Humanoid trait by 10%.",
+              "Increases own defense against enemies with the Humanoid trait by 10%."]),
+    new Skill("Battlefield Nurse", "skill-Travel",
+              skillTypeEnum.Passive, "skillShapeshift", 0, 0,
+              ["Increases own movement range by 1. Decreases cooldown of Healing skills.",
+               "Increases own defense by 10%."]),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Nightingale Pledge", "I Will Abstain From Whatever Is Deleterious And Mischievous",
+    npTypeEnum.AllyBurst, "npNightingale", 0, 1,
+    ["Recovers HP of allies in range by 30 and removes their debuffs. Increases their defense by 30% for 1 turn.",
+     "Range: 4 spaces adjacent to and including the user."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+
+// ==========================================================
 function PaulBunyan(game, faction) {
   // Basic info
   var name = "Paul Bunyan";

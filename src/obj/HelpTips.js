@@ -71,7 +71,7 @@ class HelpTips {
     var cameraHeight = 551;
     var mapCamera = game.cameras.add(cameraX, cameraY, cameraWidth, cameraHeight);
 
-    cameraX += 1024;
+    cameraX -= 2048;
     cameraY += 700;
     mapCamera.useBounds = true;
     mapCamera.setBounds(cameraX, cameraY, cameraWidth, cameraHeight);
@@ -452,8 +452,8 @@ class HelpTips {
     yPos += text.displayHeight + 8;
 
     etc = this.helpTipsAddText(game, [
-      "https://www.fate-go.jp/",
-      "https://fate-go.us/"
+      "https://www.fate-go.jp",
+      "https://fate-go.us"
     ], depth, xPos, yPos, labelFill, 2, 16);
     etc.setWordWrapWidth(520);
     yPos += etc.displayHeight + 25;
@@ -473,7 +473,7 @@ class HelpTips {
     yPos += text.displayHeight + 8;
 
     etc = this.helpTipsAddText(game, [
-      "https://wargroove.com/",
+      "https://wargroove.com",
     ], depth, xPos, yPos, labelFill, 2, 16);
     etc.setWordWrapWidth(520);
     yPos += etc.displayHeight + 25;

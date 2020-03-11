@@ -169,6 +169,18 @@ function skillAttackUp20(map, user, target) {
 }
 
 //---------------
+// Increases own attack by 30% for 3 turns.
+//---------------
+function skillAttackUp30(map, user, target) {
+  // Attack Up
+  target.addStatus(new Status(
+    "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, 30, 100, 3,
+    "Increases Attack by 30%"
+  ), null, null, user);
+}
+
+
+//---------------
 // Increases own attack by 40% for 1 turn.
 //---------------
 function skillAttackUp40(map, user, target) {
@@ -737,6 +749,46 @@ function skillHealPoison(map, user, target) {
 }
 
 //---------------
+// Recovers own HP by 15 and removes own debuffs. Grants self Guts status for 1 time over 3 turns.
+//---------------
+function skillHorus(map, user, target) {
+  // Heal
+  target.heal(15);
+
+  // Remove debuffs
+  var allStatuses = [...target.allStatuses];
+  for (const status of allStatuses) {
+    if (status.buffType == buffTypeEnum.Debuff) {
+      target.removeStatus(status);
+    }
+  }
+
+  // Guts
+  target.addStatus(new Status(
+    "Guts", "status-Guts", statusTypeEnum.Check, buffTypeEnum.Buff, 1, 100, 3,
+    "Revives with 1/4th HP when defeated"
+  ), null, 1000, user);
+}
+
+//---------------
+// Increases own attack against enemies with the Humanoid trait by 10%.
+// Increases own defense against enemies with the Humanoid trait by 10%.
+//---------------
+function skillHumanComprehension(map, user, target) {
+  // Humanoid damage up
+  target.addAllStatus(new Status(
+    "Damage Up (Humanoid)", "status-Damage Up", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, -1,
+    "Increases damage against Humanoid enemies by 10%"
+  ), null, null, user);
+
+  // Humanoid defense up
+  target.addAllStatus(new Status(
+    "Defense Up (Humanoid)", "status-Defense Up", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, -1,
+    "Increases defense against Humanoid enemies by 10%"
+  ), null, 1500, user);
+}
+
+//---------------
 // Splits into a Hassan on an adjacent space, sacrificing 25 HP from your Max HP. Cannot be used if HP is 25 or less.
 //---------------
 function skillHundredFaces(map, user, target) {
@@ -989,6 +1041,50 @@ function skillNPCharge(map, user, target) {
 }
 
 //---------------
+// Charges own NP gauge by 1.5 bars. Removes own debuffs.
+//---------------
+function skillNPDebuff(map, user, target) {
+  // Remove debuffs
+  var allStatuses = [...target.allStatuses];
+  for (const status of allStatuses) {
+    if (status.buffType == buffTypeEnum.Debuff) {
+      target.removeStatus(status);
+    }
+  }
+
+  // Increase NP
+  target.increaseNPCharge(3);
+}
+
+//---------------
+// Charges own NP gauge by 2 bars. Increases own Instant-Kill success rate by 5% for 3 turns.
+//---------------
+function skillNPEgypt(map, user, target) {
+  // Increase NP
+  target.increaseNPCharge(4);
+
+  // Instant-Kill
+  target.addStatus(new Status(
+    "Instant-Kill Chance Up", "status-Death Chance Up", statusTypeEnum.Check, buffTypeEnum.Buff, 5, 100, 3,
+    "Increases Instant-Kill success rate by 5%"
+  ), null, null, user);
+}
+
+//---------------
+// Increases own debuff success rate by 30% for 1 turn.
+//---------------
+function skillNPFamiliar(map, user, target) {
+  // Increase NP
+  target.increaseNPCharge(2);
+
+  // Debuff Rate
+  target.addStatus(new Status(
+    "Debuff Success Up", "status-Debuff Success Up", statusTypeEnum.DebuffRate, buffTypeEnum.Buff, 30, 100, 1,
+    "Increases Debuff success rate by 30%"
+  ), null, null, user);
+}
+
+//---------------
 // Charges own NP gauge by 1 bar.
 //---------------
 function skillNPGainOne(map, user, target) {
@@ -1010,6 +1106,20 @@ function skillNPGain(map, user, target) {
 function skillNPFull(map, user, target) {
   // Increase NP
   target.increaseNPCharge(target.npChargeTime);
+}
+
+//---------------
+// Recovers one ally's HP by 25. Grants them Debuff Immunity for 3 turns.
+//---------------
+function skillNurse(map, user, target) {
+  // Heal
+  target.heal(25);
+
+  // Debuff Immunity
+  target.addStatus(new Status(
+    "Debuff Immunity", "status-Debuff Immunity", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, 3,
+    "Immune to debuff statuses"
+  ), null, 1500, user);
 }
 
 //---------------
@@ -1127,6 +1237,23 @@ function skillPoison(map, user, target) {
     "Poison", "status-Poison", statusTypeEnum.DmgPT, buffTypeEnum.Debuff, 5, 100, 5,
     "Takes 5 damage at the beginning of each turn"
   ), null, null, user);
+}
+
+//---------------
+// Inflicts Poison with 5 damage for 3 turns to one enemy. Lowers their defense by 15% for 3 turns.
+//---------------
+function skillPoisonDef(map, user, target) {
+  // Poison
+  target.addStatus(new Status(
+    "Poison", "status-Poison", statusTypeEnum.DmgPT, buffTypeEnum.Debuff, 5, 100, 3,
+    "Takes 5 damage at the beginning of each turn"
+  ), null, null, user);
+
+  // Defense down
+  target.addStatus(new Status(
+    "Defense Down", "status-Defense Down", statusTypeEnum.Defense, buffTypeEnum.Debuff, -15, 100, 3,
+    "Decreases Defense by 15%"
+  ), null, 1500, user);
 }
 
 //---------------
@@ -1463,4 +1590,21 @@ function skillVampire(map, user, target) {
   // Heal
   var heal = Math.round(damage * (2/3));
   user.heal(heal);
+}
+
+//---------------
+// Increases attack and NP damage of allies in range including self by 10% for 2 turns.
+//---------------
+function skillVoyager(map, user, target) {
+  // NP Damage Up
+  target.addStatus(new Status(
+    "NP Damage Up", "status-NP Damage Up", statusTypeEnum.Check, buffTypeEnum.Buff, 0.10, 100, 2,
+    "Increases NP damage by 25%"
+  ), null, null, user);
+
+  // Attack Up
+  target.addStatus(new Status(
+    "Attack Up", "status-Attack Up", statusTypeEnum.Attack, buffTypeEnum.Buff, 10, 100, 2,
+    "Increases Attack by 10%"
+  ), null, 1500, user);
 }

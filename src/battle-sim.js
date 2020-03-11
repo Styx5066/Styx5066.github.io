@@ -26,7 +26,8 @@ function getBattleSimMaps() {
   ];
 
   if (devMode()) {
-    maps.push({ name: "Servant Test",     load: "ServantMap",    image: "Unknown-Gold-Full" });
+    maps.push({ name: "Servant Test (Knight)",  load: "ServantMapKnight",  image: "Saber-Gold-Full" });
+    maps.push({ name: "Servant Test (Cavalry)", load: "ServantMapCavalry", image: "Rider-Gold-Full" });
     maps.push({ name: "Enemy Test",       load: "EnemyMap",      image: "Skeleton-Saber-Portrait" });
     maps.push({ name: "Test Map",         load: "TestMap",       image: "Astolfo-Portrait"  });
     // maps.push({ name: "Advance Wars 1",   load: "AdvanceWars1",  image: "Medea-Portrait"    });

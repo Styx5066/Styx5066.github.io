@@ -34,57 +34,64 @@ function getAllServants(game, faction, summon) {
   // ==============================
   // Saber
   load.push("ArtoriaAlter");      // Gold
+  load.push("Nero");              // Gold
+  load.push("Musashi");           // Gold
+  load.push("ArtoriaLily");       // Silver
   load.push("Bedivere");          // Silver
   load.push("ChevalierdEon");     // Silver
   load.push("Jason");             // Bronze
-  load.push("Nero");              // Gold
-  load.push("Musashi");           // Gold
 
   // Archer
   load.push("AnneBonny");         // Gold
-  load.push("Arash");             // Bronze
   load.push("Atalanta");          // Gold
   load.push("Gilgamesh");         // Gold
   load.push("Kuro");              // Gold
+  load.push("BillytheKid");       // Silver
   load.push("RobinHood");         // Silver
+  load.push("Arash");             // Bronze
 
   // Lancer
+  load.push("ArtoriaLancer");     // Gold
+  load.push("ElizabethBathory");  // Gold
+  load.push("Scathach");          // Gold
   load.push("CuChulainn");        // Silver
   load.push("Diarmuid");          // Silver
-  load.push("ElizabethBathory");  // Gold
   load.push("Gareth");            // Bronze
   load.push("Leonidas");          // Bronze
-  load.push("Scathach");          // Gold
 
   // Rider
   load.push("Astolfo");           // Gold
-  load.push("Boudica");           // Bronze
   load.push("Medb");              // Gold
-  load.push("Medusa");            // Silver
   load.push("MaryRead");          // Gold
   load.push("SaintMartha");       // Gold
+  load.push("Medusa");            // Silver
+  load.push("Blackbeard");        // Bronze
+  load.push("Boudica");           // Bronze
 
   // Caster
-  load.push("Andersen");          // Bronze
   load.push("Circe");             // Gold
-  load.push("Medea");             // Silver
   load.push("MedeaLily");         // Gold
-  load.push("NurseryRhyme");      // Silver
+  load.push("Nitocris");          // Gold
   load.push("Tamamo");            // Gold
+  load.push("Medea");             // Silver
+  load.push("NurseryRhyme");      // Silver
+  load.push("Andersen");          // Bronze
 
   // Assassin
-  load.push("CursedArmHassan");   // Bronze
-  load.push("HundredHassan");     // Silver
   load.push("JacktheRipper");     // Gold
+  load.push("Semiramis");         // Gold
+  load.push("SerenityHassan");    // Gold
+  load.push("HundredHassan");     // Silver
+  load.push("CursedArmHassan");   // Bronze
   load.push("MataHari");          // Bronze
   load.push("SasakiKojirou");     // Bronze
-  load.push("SerenityHassan");    // Gold
 
   // Berserker
   load.push("Heracles");          // Gold
+  load.push("Nightingale");       // Gold
   load.push("Frankenstein");      // Gold
-  load.push("Kiyohime");          // Silver
   load.push("Lancelot");          // Gold
+  load.push("Kiyohime");          // Silver
   load.push("PaulBunyan");        // Bronze
   load.push("Spartacus");         // Bronze
 

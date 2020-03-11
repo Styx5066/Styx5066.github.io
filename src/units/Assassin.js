@@ -361,6 +361,90 @@ function SasakiKojirou(game, faction) {
 // ==========================================================
 
 // ==========================================================
+function Semiramis(game, faction) {
+  // Basic info
+  var name = "Semiramis";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Assassin;
+  var image = name;
+  var rank = rankEnum.Gold;
+  var traits = [ "Divine", "Female", "Humanoid", "King", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = ["Servant, Assassin-class. My name is Semiramis. Now then...first, you must prepare a throne for me.",
+               "Then, we shall talk. If you do not have one, then you will have to serve as my chair." ];
+
+  // Stats
+  var maxHP = servantHP(13266);
+  var attack = servantAtk(11309);
+  var attackRange = 2;
+  var movementRange = 3;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Familiar (Pigeon)", "skill-NP Charge",
+              skillTypeEnum.Self, "skillNPFamiliar", servantCooldown(7), 0,
+              ["Charges own NP gauge by 1 bar. Increases own debuff success rate by 30% for 1 turn."]),
+    new Skill("Sikera Ušum", "skill-Poison",
+              skillTypeEnum.AoEburst, "skillPoisonDef", servantCooldown(8), 2,
+              ["Inflicts Poison with 5 damage for 3 turns to all enemies in range.",
+               "Lowers their defense by 15% for 3 turns."]),
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Territory Creation", "skill-Territory Creation",
+              skillTypeEnum.Passive, "skillTerritory", 0, 0,
+              "Increases own healing from Ley Lines by 10%."),
+    new Skill("Item Construction (Poison)", "skill-Item Construction",
+              skillTypeEnum.Passive, "skillItemConstr", 0, 0,
+              "Increases own debuff success rate by 15%."),
+    new Skill("Divinity", "skill-Divinity",
+              skillTypeEnum.Passive, "skillDivinity", 0, 0,
+              "Increases own damage by 5."),
+    new Skill("Double Summon (Caster)", "skill-Caster",
+              skillTypeEnum.Passive, "skillManual", 0, 0,
+              ["Ignores attack and defense advantage of the Caster class.",
+               "Increases own attack range by 1.",
+               "Decreases own movement range by 1. [Demerit]"]),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Hanging Gardens of Babylon", "Aerial Garden of Vanity",
+    npTypeEnum.AoEcone, "npDamage", npStrengthAoE(), 2,
+    ["Deals 200% damage to enemies in range.",
+     "Range: A cone of 4 spaces in one direction."]
+   );
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
 function SerenityHassan(game, faction) {
   // Basic info
   var name = "Serenity Hassan";

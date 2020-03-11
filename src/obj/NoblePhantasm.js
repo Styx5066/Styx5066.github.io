@@ -321,6 +321,20 @@ function npBedivere(map, user, target, strength, isFirst) {
 }
 
 //---------------
+// Deals 200% damage to enemies in range. 50% chance to reduce their NP gauge by 1 bar.
+//---------------
+function npBlackbeard(map, user, target, strength, isFirst) {
+  // NP Loss
+  var rand = getRandomInt(0, 100);
+  if (rand >= 50) {
+    target.decreaseNPCharge(2);
+  }
+
+  // Damage
+  map.attack(target, strength, true, true);
+}
+
+//---------------
 // Deals 200% damage to enemies in range. Reduces their defense by 10% for 5 turns.
 //---------------
 function npBunyan(map, user, target, strength, isFirst) {
@@ -450,6 +464,17 @@ function npDefenseUp(map, user, target, strength, isFirst) {
     "Defense Up", "status-Defense Up", statusTypeEnum.Defense, buffTypeEnum.Buff, 30, 100, 3,
     "Increases Defense by 30%"
   ), null, null, user);
+}
+
+//---------------
+// Deals damage and recovers own HP by 20.
+//---------------
+function npDamageHeal(map, user, target, strength, isFirst) {
+  // Damage
+  map.attack(target, strength, true, true);
+
+  // Heal
+  user.heal(20);
 }
 
 //---------------
@@ -755,7 +780,7 @@ function npMedb(map, user, target, strength, isFirst) {
 }
 
 //---------------
-// Deals damage to one enemy and removes their buffs.
+// Recovers HP of allies in range by 50 and removes their debuffs.
 //---------------
 function npMedeaLily(map, user, target, strength, isFirst) {
   // Remove target's debuffs
@@ -788,6 +813,45 @@ function npNero(map, user, target, strength, isFirst) {
 }
 
 //---------------
+// Recovers HP of allies in range by 30 and removes their debuffs. Increases their defense by 30% for 1 turn.
+//---------------
+function npNightingale(map, user, target, strength, isFirst) {
+  // Remove target's debuffs
+  if (target.hasOwnProperty("_allStatuses")) {
+    var allStatuses = [...target.allStatuses];
+    for (const status of allStatuses) {
+      if (status.buffType == buffTypeEnum.Debuff) {
+        target.removeStatus(status);
+      }
+    }
+  }
+
+  // Heal
+  target.heal(30);
+
+  // Defense Up
+  target.addStatus(new Status(
+    "Defense Up", "status-Defense Up", statusTypeEnum.Defense, buffTypeEnum.Buff, 30, 100, 1,
+    "Increases Defense by 30%"
+  ), null, 1500, user);
+}
+
+//---------------
+// Deals 200% damage to enemies in range. 5% chance to Instant-Kill them.
+//---------------
+function npNitocris(map, user, target, strength, isFirst) {
+  // Check Instant-kill
+  if (target.instantKill(5, user)) {
+    target.floatUnitText("Instant Kill", "#ff4040", 500, 3);
+    map.killUnit(target);
+    return;
+  }
+
+  // Damage
+  map.attack(target, strength, true, true);
+}
+
+//---------------
 // Deals 200% damage to enemies in range. Reduces their defense by 20% for 3 turns.
 // 60% chance to reduce their NP gauge by 1 bar.
 //---------------
@@ -807,6 +871,25 @@ function npNurseryRhyme(map, user, target, strength, isFirst) {
   // Damage
   var defIgnore = true;
   map.attack(target, strength, true, true, defIgnore);
+}
+
+//---------------
+// Deals 200% damage that ignores Invincibility to enemies in range. Charges own NP gauge by 1 bar.
+//---------------
+function npRhongomyniad(map, user, target, strength, isFirst) {
+  if (isFirst) {
+    // Increase NP
+    user.increaseNPCharge(2);
+
+    // Pierce Invincible
+    user.addStatus(new Status(
+      "Pierce Invincible", "status-Pierce Invincible", statusTypeEnum.Check, buffTypeEnum.Buff, 0, 100, 1,
+      "Allows attacking those with the Invincible status"
+    ), null, null, user);
+  }
+
+  // Damage
+  map.attack(target, strength, true, true);
 }
 
 //---------------

@@ -73,7 +73,7 @@ class UnitInfo {
     var cameraHeight = 551;
     var mapCamera = game.cameras.add(cameraX, cameraY, cameraWidth, cameraHeight);
 
-    cameraX -= 1024;
+    cameraX -= 2048;
     cameraY += 700;
     mapCamera.useBounds = true;
     mapCamera.setBounds(cameraX, cameraY, cameraWidth, cameraHeight);

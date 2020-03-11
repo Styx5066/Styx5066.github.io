@@ -229,6 +229,78 @@ function Atalanta(game, faction) {
 // ==========================================================
 
 // ==========================================================
+function BillytheKid(game, faction) {
+  // Basic info
+  var name = "Billy the Kid";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Archer;
+  var image = name;
+  var rank = rankEnum.Silver;
+  var traits = [ "Riding", "Humanoid", "Male", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = ["Heyo! My name is Billy the Kid.",
+               "I’m a newish Servant, but I think I’ll be useful. Nice to meet you."];
+
+  // Stats
+  var maxHP = servantHP(9506);
+  var attack = servantAtk(6890);
+  var attackRange = 1;
+  var movementRange = 4;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Quick Draw", "skill-NP Charge",
+               skillTypeEnum.Self, "skillNPGain", servantCooldown(8), 0,
+               ["Charges own NP gauge by 1.5 bars."]),
+   new Skill("Eye of the Mind (False)", "skill-Evasion",
+             skillTypeEnum.Self, "skillEvasion", servantCooldown(8), 0,
+             ["Grants self Evasion for 1 turn."]),
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Firearms", "skill-Shadow",
+              skillTypeEnum.Passive, "skillMadEnhancement", 0, 0,
+              ["Increases own movement range by 1. Increases own attack by 10%.",
+               "Decreases own attack range by 1. [Demerit]"]),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Thunderer", "Thunderbolt of Broken Sound",
+    npTypeEnum.Single, "npKuro", npStrengthSingle(), 1,
+    ["Grants Sure Hit to self for 1 turn and deals 300% damage to one enemy.",
+     "Range: 1 adjacent enemy."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
 function Gilgamesh(game, faction) {
   // Basic info
   var name = "Gilgamesh";

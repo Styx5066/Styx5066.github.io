@@ -76,6 +76,78 @@ function Astolfo(game, faction) {
 // ==========================================================
 
 // ==========================================================
+function Blackbeard(game, faction) {
+  // Basic info
+  var name = "Blackbeard";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Rider;
+  var image = name;
+  var rank = rankEnum.Bronze;
+  var traits = [ "Male", "Humanoid", "Servant", "Weak to Enuma Elish" ];
+  var aiType = aiTypeEnum.Offensive;
+
+  var intro = ["My goodness! what a coincidence! Fahaha!",
+               "Blackbeard has come to see you! Green is the enemy!"];
+
+  // Stats
+  var maxHP = servantHP(7907);
+  var attack = servantAtk(6188);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Pirate's Honor", "skill-Attack Up",
+              skillTypeEnum.Self, "skillPirateAttack", servantCooldown(7), 0,
+              ["Increases own attack by 10% for 3 turns. Grants self Guts status for 1 time.",
+               "Reduces own debuff resistance by 20% for 3 turns. [Demerit]"]),
+    new Skill("Voyager of the Storm", "skill-NP Damage Up",
+             skillTypeEnum.AllyBurst, "skillVoyager", servantCooldown(7), 1,
+             ["Increases attack and NP damage of allies in range including self by 10% for 2 turns."])
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Magic Resistance (Low)", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResLow", 0, 0,
+              "Increases own debuff resistance by 10%."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Queen Anne's Revenge", "Revenge of the Queen Anne",
+    npTypeEnum.AoEcone, "npBlackbeard", npStrengthAoE(), 2,
+    ["Deals 200% damage to enemies in range. 50% chance to reduce their NP gauge by 1 bar.",
+     "Range: A cone of 4 spaces in one direction."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
 function Boudica(game, faction) {
   // Basic info
   var name = "Boudica";

@@ -149,6 +149,77 @@ function ArtoriaAlter(game, faction) {
 // ==========================================================
 
 // ==========================================================
+function ArtoriaLily(game, faction) {
+  // Basic info
+  var name = "Artoria Lily";
+  var load = noSpaces(name);
+  var unitClass = classEnum.Saber;
+  var image = name;
+  var rank = rankEnum.Silver;
+  var traits = [ "Arthur", "Dragon", "Female", "King", "Riding", "Humanoid", "Saberface", "Servant", "Weak to Enuma Elish" ];
+  var aiType;
+
+  var intro = [ "Pleased to meet you, Master. I’m still a novice with the sword, so please call me Saber Lily.",
+                "I look forward to adventuring with you!" ];
+
+  // Stats
+  var maxHP = servantHP(10623);
+  var attack = servantAtk(9355);
+  var attackRange;
+  var movementRange;
+  var movementType;
+
+  // Active Skills
+  var activeSkills = [
+    new Skill("Mana Burst", "skill-Damage Up",
+              skillTypeEnum.Self, "skillAttackUp40", servantCooldown(7), 0,
+              ["Increases own attack by 40% for 1 turn."]),
+    new Skill("Journey of Flowers", "skill-NP Generation",
+              skillTypeEnum.Ally, "skillNPCharge", servantCooldown(7), 1,
+              ["Increases one ally's NP charge generation to 1 bar per turn for 3 turns."])
+  ];
+
+  // Passive Skills
+  var passiveSkills = [
+    new Skill("Magic Resistance", "skill-Magic Resistance",
+              skillTypeEnum.Passive, "skillMagicResA", 0, 0,
+              "Increases own debuff resistance by 20%."),
+  ];
+
+  // Noble Phantasm
+  var noblePhantasm = new NoblePhantasm(
+    "Caliburn", "Golden Sword of the Victorious",
+    npTypeEnum.Single, "npDamageHeal", npStrengthSingle(), 1,
+    ["Deals 300% damage to one enemy and recovers own HP by 20.",
+     "Range: 1 adjacent enemy."]);
+  var npChargeTime;
+
+  // ---------------
+  return new Unit(
+    game,                 // Game object
+    name,                 // Unit name
+    image,                // Portrait image
+    faction,              // Faction
+    unitClass,            // Class
+    rank,                 // Rank
+    maxHP,                // Max HP
+    attack,               // Attack
+    attackRange   || defaultAtkRange(unitClass), // Attack range
+    movementRange || defaultMovement(unitClass), // Movement range
+    movementType,         // Movement Type
+    noblePhantasm,        // Noble Phantasm
+    npChargeTime  || defaultNPCharge(unitClass), // NP Charge
+    activeSkills,         // Active Skills
+    passiveSkills,        // Passive Skills
+    traits,               // Traits
+    intro,                // Intro dialogue
+    load,                 // Loading function
+    aiType                // AI Type
+  );
+}
+// ==========================================================
+
+// ==========================================================
 function Bedivere(game, faction) {
   // Basic info
   var name = "Bedivere";

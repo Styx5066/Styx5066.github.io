@@ -392,6 +392,8 @@ class Unit {
     if (attacker.hasPassiveSkill("Silent Dance"))    { chance += 5; }
     if (attacker.hasPassiveSkill("Silent Movement")) { chance += 5; }
 
+    console.log(chance)
+
     var rand = getRandomInt(0, 100);
     if (rand >= chance) {
       return false;
