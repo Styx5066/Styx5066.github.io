@@ -3130,7 +3130,7 @@ class Map {
   actionMenu(pointer) {
     // Do nothing if during a turn
     if (this._unitInfo) { this._tileHover.setTexture("selection-cursor"); this._unitInfo = false; return; }
-    if ((this._factionIndex > -1) && this._isTurnTransition) { return; }
+    if (this._isTurnTransition) { return; }
     if (this._noActionMenu) { return; }
 
     // Get the tile

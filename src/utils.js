@@ -13,7 +13,7 @@ function devMode() {
 // DESCRIPTION: Determines whether dev options appear
 //---------------
 function version() {
-  return "0.1.12c";
+  return "0.1.12d";
 }
 
 // ------------------------------------------------------

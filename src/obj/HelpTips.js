@@ -514,6 +514,17 @@ class HelpTips {
     etc.setWordWrapWidth(520);
     yPos += etc.displayHeight + 25;
 
+    // Sound Effects
+    title = this.helpTipsAddText(game, "ZapSplat", depth, xPos, yPos, valueFill, 2);
+    title.setWordWrapWidth(520);
+    yPos += 25;
+
+    etc = this.helpTipsAddText(game, [
+      "Additional sound effects from https://www.zapsplat.com"
+    ], depth, xPos, yPos, labelFill, 2, 16);
+    etc.setWordWrapWidth(520);
+    yPos += etc.displayHeight + 25;
+
     // Dev
     title = this.helpTipsAddText(game, "Development", depth, xPos, yPos, valueFill, 2);
     title.setWordWrapWidth(520);

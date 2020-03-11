@@ -651,7 +651,7 @@ function preloadDialogue(game) {
 //---------------
 function preloadSounds(game) {
   game.load.audio("select", ["assets/sounds/select-AW01.wav"]);
-  game.load.audio("menu-select", ["assets/sounds/select01.mp3"]);
+  game.load.audio("menu-select", ["assets/sounds/select03.mp3"]);
   game.load.audio("cancel", ["assets/sounds/cancel-AW01.wav"]);
   game.load.audio("click", ["assets/sounds/click01.mp3"]);
 
