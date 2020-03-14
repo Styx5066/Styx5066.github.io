@@ -93,8 +93,9 @@ class Skill {
         var targetName;
         if (target.hasOwnProperty("_tileSprite")) { targetName = target.image; }
         else { targetName = target.name; }
-        console.log("[Error] Skill '" + this._name + "' encountered an issue attacking '" + targetName + "'.")
-        console.log(exception)
+
+        var message = "Skill '" + this._name + "' encountered an issue targeting '" + targetName + "'.";
+        errorLog(map._game, exception, message);
       }
     }
   }

@@ -186,8 +186,9 @@ class NoblePhantasm {
             var targetName;
             if (target.hasOwnProperty("_tileSprite")) { targetName = target.image; }
             else { targetName = target.name; }
-            console.log("[Error] Noble Phantasm '" + this._name + "' encountered an issue attacking '" + targetName + "'.")
-            console.log(exception)
+
+            var message = "Noble Phantasm '" + this._name + "' encountered an issue attacking '" + targetName + "'.";
+            errorLog(map._game, exception, message);
           }
 
           isFirst = false;

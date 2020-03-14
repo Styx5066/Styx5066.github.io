@@ -13,7 +13,7 @@ function devMode() {
 // DESCRIPTION: Determines whether dev options appear
 //---------------
 function version() {
-  return "0.1.12d";
+  return "0.2.0";
 }
 
 // ------------------------------------------------------
@@ -145,6 +145,92 @@ function backButton(game, sound, action) {
   backButton.on('pointerout',  function (pointer) { backButton.tint = 0xffffff; } );
 
   return [backButton, backText];
+}
+
+//---------------
+// DESCRIPTION: Shows an error message and allows the exception to be copied to the clipboard.
+// PARAMS:
+//  game      (I,REQ) - Game object
+//  exception (I,REQ) - Exception caught
+//  message   (I,REQ) - Error message
+//---------------
+function errorLog(game, exception, message) {
+  // Log to console
+  console.log(message);
+  console.log(exception);
+
+  // // Message
+  // var allUI = [];
+  //
+  // var style = { font: "18px Optima", fill: "#e0301e", fontStyle: "bold" };
+  // var title = game.add.text(512, 5, " Error ", style).setOrigin(0.5, 0);
+  // title.setShadow(2, 2, "#000", 2);
+  // title.alpha = 0;
+  // title.depth = 9999;
+  // title.setScrollFactor(0);
+  // allUI.push(title);
+  //
+  // style = { font: "14px Optima", fill: "#fff", fontStyle: "bold" };
+  // var message = game.add.text(377, 30, message, style).setOrigin(0, 0);
+  // message.setShadow(2, 2, "#000", 2);
+  // message.setWordWrapWidth(270);
+  // message.alpha = 0;
+  // message.depth = 9999;
+  // message.setScrollFactor(0);
+  // allUI.push(message);
+  //
+  // var y = 30 + message.displayHeight + 15;
+  //
+  //
+  // // OK
+  // var okButton = game.add.image(512, y, "option-box").setOrigin(0.5, 0);
+  // okButton.alpha = 0;
+  // okButton.depth = 9999;
+  // okButton.setScrollFactor(0);
+  // allUI.push(okButton);
+  //
+  // style = { font: "18px Optima", fill: "#000" };
+  // var okText = game.add.text(512, (y + 15), "OK", style).setOrigin(0.5, 0.5);
+  // okText.alpha = 0;
+  // okText.depth = 9999;
+  // okText.setScrollFactor(0);
+  // allUI.push(okText);
+  //
+  // okButton.setInteractive( useHandCursor() );
+  // okButton.on('pointerdown', (pointer) => { if (!pointer.rightButtonDown()) {
+  //   game.tweens.add({
+  //     targets: allUI,
+  //     alpha: 0,
+  //     ease: "Quad.easeOut",
+  //     duration: 500,
+  //     onComplete: () => {
+  //       for (const element of allUI) { element.destroy(); }
+  //     }
+  //   });
+  // } } );
+  // okButton.on('pointerover', function (pointer) { okButton.tint = 0xaaaaaa; } );
+  // okButton.on('pointerout',  function (pointer) { okButton.tint = 0xffffff; } );
+  //
+  // y += 30;
+  //
+  //
+  // // Box
+  // var box = game.add.graphics();
+  // box.fillStyle(0x000000, 0.5);
+  // box = box.fillRect(362, 0, 300, (y + 15));
+  // box.alpha = 0;
+  // box.depth = 9998;
+  // box.setScrollFactor(0);
+  // allUI.push(box);
+  //
+  //
+  // // Appear
+  // game.tweens.add({
+  //   targets: allUI,
+  //   alpha: 1,
+  //   ease: "Quad.easeIn",
+  //   duration: 500,
+  // });
 }
 
 //---------------
